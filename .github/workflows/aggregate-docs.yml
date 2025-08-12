@@ -1,0 +1,549 @@
+name: SpecterOps Documentation Aggregator
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:  # Allow manual runs
+  push:
+    branches: [main]
+    paths: ['.github/workflows/aggregate-docs.yml', 'tagging_config.py']
+
+env:
+  GIT_AUTHOR_NAME: SpecterOps Documentation Bot
+  GIT_AUTHOR_EMAIL: docs-bot@specterops.io
+
+jobs:
+  aggregate-documentation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
+        run: |
+          pip install requests pyyaml beautifulsoup4
+          
+      - name: Setup Directory Structure
+        run: |
+          rm -rf docs/tools/*
+          mkdir -p docs/tools/{core-platforms,c2-frameworks,data-analysis,utilities,browse}
+      
+      - name: Create Tagging System
+        run: |
+          cat > tagging_system.py << 'EOF'
+          import json
+          import re
+          import os
+          from pathlib import Path
+          from collections import defaultdict
+          import yaml
+          
+          class SpecterOpsTagging:
+              def __init__(self):
+                  # Edit these tags as needed
+                  self.tag_taxonomy = {
+                      "platforms": ["windows", "macos", "linux", "cross-platform"],
+                      "techniques": [
+                          "reconnaissance", "initial-access", "execution", "persistence", 
+                          "privilege-escalation", "defense-evasion", "credential-access",
+                          "lateral-movement", "collection", "command-control", "exfiltration"
+                      ],
+                      "environments": [
+                          "active-directory", "azure", "aws", "gcp", "kubernetes", 
+                          "office365", "exchange"
+                      ],
+                      "categories": [
+                          "c2-framework", "data-analysis", "exploitation", "post-exploitation",
+                          "enumeration", "forensics", "reporting", "infrastructure"
+                      ],
+                      "roles": [
+                          "red-team", "blue-team", "purple-team", "researcher", "consultant"
+                      ],
+                      "difficulty": ["beginner", "intermediate", "advanced", "experimental"],
+                      "integrations": [
+                          "bloodhound", "cobalt-strike", "mythic", "metasploit", 
+                          "empire", "covenant"
+                      ]
+                  }
+                  
+                  # Add manual tags for specific tools here
+                  self.manual_tags = {
+                      "bloodhound_community_edition": {
+                          "platforms": ["windows", "linux", "macos"],
+                          "techniques": ["reconnaissance", "lateral-movement"],
+                          "environments": ["active-directory", "azure"],
+                          "categories": ["data-analysis", "enumeration"],
+                          "roles": ["red-team", "blue-team"],
+                          "difficulty": ["intermediate"]
+                      },
+                      "mythic_c2": {
+                          "platforms": ["windows", "macos", "linux"],
+                          "techniques": ["command-control", "execution", "persistence"],
+                          "environments": ["active-directory", "azure"],
+                          "categories": ["c2-framework", "post-exploitation"],
+                          "roles": ["red-team", "consultant"],
+                          "difficulty": ["intermediate", "advanced"]
+                      },
+                      "ghostwriter": {
+                          "platforms": ["cross-platform"],
+                          "categories": ["reporting", "infrastructure"],
+                          "roles": ["red-team", "consultant", "blue-team"],
+                          "difficulty": ["beginner", "intermediate"],
+                          "integrations": ["mythic", "cobalt-strike"]
+                      },
+                      "sharphound": {
+                          "platforms": ["windows"],
+                          "techniques": ["reconnaissance"],
+                          "environments": ["active-directory"],
+                          "categories": ["enumeration", "data-analysis"],
+                          "roles": ["red-team", "blue-team"],
+                          "difficulty": ["beginner"],
+                          "integrations": ["bloodhound"]
+                      },
+                      "sharpsccm": {
+                          "platforms": ["windows"],
+                          "techniques": ["lateral-movement", "privilege-escalation"],
+                          "environments": ["active-directory"],
+                          "categories": ["post-exploitation", "enumeration"],
+                          "roles": ["red-team"],
+                          "difficulty": ["intermediate"]
+                      }
+                  }
+              
+              def get_tool_tags(self, tool_name, content=""):
+                  safe_name = re.sub(r'[^\w\-]', '_', tool_name.lower()).replace(' ', '_')
+                  tags = self.manual_tags.get(safe_name, {})
+                  
+                  if not tags and content:
+                      tags = self.detect_tags_from_content(content)
+                  
+                  return tags
+              
+              def detect_tags_from_content(self, content):
+                  content_lower = content.lower()
+                  detected = defaultdict(list)
+                  
+                  # Platform detection
+                  if any(term in content_lower for term in ["windows", ".net", "c#", "powershell"]):
+                      detected["platforms"].append("windows")
+                  if any(term in content_lower for term in ["macos", "osx", "objective-c"]):
+                      detected["platforms"].append("macos")
+                  if any(term in content_lower for term in ["linux", "bash", "shell"]):
+                      detected["platforms"].append("linux")
+                  if any(term in content_lower for term in ["docker", "python", "go"]):
+                      detected["platforms"].append("cross-platform")
+                  
+                  # Environment detection
+                  if any(term in content_lower for term in ["active directory", "ldap", "domain"]):
+                      detected["environments"].append("active-directory")
+                  if any(term in content_lower for term in ["azure", "entra", "aad"]):
+                      detected["environments"].append("azure")
+                  
+                  # Category detection
+                  if any(term in content_lower for term in ["c2", "command and control", "beacon"]):
+                      detected["categories"].append("c2-framework")
+                  if any(term in content_lower for term in ["analysis", "graph", "visualization"]):
+                      detected["categories"].append("data-analysis")
+                  
+                  return dict(detected)
+              
+              def add_tags_to_frontmatter(self, frontmatter, tags):
+                  if tags:
+                      frontmatter["tags"] = []
+                      frontmatter["tag_categories"] = {}
+                      
+                      for category, tag_list in tags.items():
+                          if tag_list:
+                              frontmatter["tag_categories"][category] = tag_list
+                              frontmatter["tags"].extend(tag_list)
+                  
+                  return frontmatter
+              
+              def create_tag_display(self, tags):
+                  if not tags:
+                      return ""
+                  
+                  display = ""
+                  for category, tag_list in tags.items():
+                      if tag_list:
+                          category_name = category.replace("-", " ").title()
+                          tag_names = [tag.replace("-", " ").title() for tag in tag_list]
+                          display += f"**{category_name}**: {', '.join(tag_names)}\n\n"
+                  
+                  return display + "\n"
+              
+              def create_browse_pages(self, all_tools_tags, output_dir):
+                  browse_dir = Path(output_dir) / "browse"
+                  browse_dir.mkdir(exist_ok=True)
+                  
+                  # Organize tools by tags
+                  tag_indexes = defaultdict(lambda: defaultdict(list))
+                  
+                  for tool_path, tool_data in all_tools_tags.items():
+                      tool_name = tool_data["name"]
+                      tags = tool_data.get("tags", {})
+                      
+                      for category, tag_list in tags.items():
+                          for tag in tag_list:
+                              tag_indexes[category][tag].append({
+                                  "name": tool_name,
+                                  "path": tool_path
+                              })
+                  
+                  # Create main browse page
+                  with open(browse_dir / "index.md", 'w') as f:
+                      f.write("""---
+          title: "Browse Tools by Tags"
+          description: "Find SpecterOps tools by category"
+          ---
+          
+          # Browse Tools by Tags
+          
+          <CardGroup cols={2}>
+          """)
+                      
+                      for category in tag_indexes.keys():
+                          category_display = category.replace("-", " ").title()
+                          f.write(f"""  <Card title="{category_display}" href="./{category}">
+              Browse by {category_display.lower()}
+            </Card>
+          """)
+                      
+                      f.write("</CardGroup>\n")
+                  
+                  # Create individual category pages
+                  for category, tags in tag_indexes.items():
+                      category_display = category.replace("-", " ").title()
+                      
+                      with open(browse_dir / f"{category}.md", 'w') as f:
+                          f.write(f"""---
+          title: "Browse by {category_display}"
+          description: "Find tools by {category_display.lower()}"
+          ---
+          
+          # Browse by {category_display}
+          
+          """)
+                          
+                          for tag, tools in sorted(tags.items()):
+                              tag_display = tag.replace("-", " ").title()
+                              f.write(f"## {tag_display}\n\n")
+                              
+                              for tool in sorted(tools, key=lambda x: x["name"]):
+                                  f.write(f"- [{tool['name']}](../../{tool['path']})\n")
+                              
+                              f.write("\n")
+          EOF
+      
+      - name: Create Documentation Processor
+        run: |
+          cat > process_docs.py << 'EOF'
+          import json
+          import subprocess
+          import requests
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          import yaml
+          import os
+          
+          # Import tagging system
+          exec(open('tagging_system.py').read())
+          
+          def process_specterops_tools():
+              tagging = SpecterOpsTagging()
+              
+              # Tool configuration - add your tools here
+              tools_config = {
+                  "core-platforms": [
+                      {
+                          "name": "BloodHound Community Edition",
+                          "repo": "SpecterOps/BloodHound",
+                          "docs_path": ["README.md"],
+                          "description": "Attack path analysis for Active Directory and Azure environments",
+                          "subdomain": "bloodhound"
+                      },
+                      {
+                          "name": "Ghostwriter",
+                          "repo": "GhostManager/Ghostwriter",
+                          "docs_path": "README.md", 
+                          "description": "Project management and reporting engine for red teams",
+                          "subdomain": "ghostwriter"
+                      },
+                      {
+                          "name": "Nemesis",
+                          "repo": "SpecterOps/Nemesis",
+                          "docs_path": ["README.md"],
+                          "description": "Offensive data enrichment pipeline",
+                          "subdomain": "nemesis"
+                      }
+                  ],
+                  "c2-frameworks": [
+                      {
+                          "name": "Mythic C2",
+                          "repo": "its-a-feature/Mythic",
+                          "docs_path": "README.md",
+                          "description": "Multi-platform, collaborative red teaming C2 framework",
+                          "subdomain": "mythic"
+                      }
+                  ],
+                  "utilities": [
+                      {
+                          "name": "SharpSCCM", 
+                          "repo": "Mayyhem/SharpSCCM",
+                          "docs_path": "README.md",
+                          "description": "Post-exploitation tool for Microsoft SCCM"
+                      },
+                      {
+                          "name": "SharpHound",
+                          "repo": "BloodHoundAD/SharpHound", 
+                          "docs_path": "README.md",
+                          "description": "Official data collector for BloodHound",
+                          "subdomain": "sharphound"
+                      }
+                  ]
+              }
+              
+              all_tools = {}
+              
+              for category, tools in tools_config.items():
+                  print(f"Processing category: {category}")
+                  
+                  for tool_config in tools:
+                      print(f"  Processing {tool_config['name']}...")
+                      
+                      # Create tool directory
+                      safe_name = re.sub(r'[^\w\-]', '_', tool_config['name'].lower()).replace(' ', '_')
+                      tool_dir = Path(f"docs/tools/{category}/{safe_name}")
+                      tool_dir.mkdir(parents=True, exist_ok=True)
+                      
+                      # Get repository content
+                      content = get_repo_content(tool_config)
+                      
+                      # Get tags
+                      tags = tagging.get_tool_tags(tool_config['name'], content)
+                      
+                      # Create documentation
+                      doc_content = create_documentation(tool_config, content, tags, tagging)
+                      
+                      # Write file
+                      with open(tool_dir / "index.md", 'w') as f:
+                          f.write(doc_content)
+                      
+                      # Store for browse page generation
+                      all_tools[f"{category}/{safe_name}"] = {
+                          "name": tool_config['name'],
+                          "tags": tags
+                      }
+              
+              # Create browse pages
+              tagging.create_browse_pages(all_tools, Path("docs/tools"))
+              
+              # Save data for reference
+              with open("docs/tools/_tag_data.json", 'w') as f:
+                  json.dump(all_tools, f, indent=2)
+              
+              return all_tools
+          
+          def get_repo_content(tool_config):
+              repo = tool_config['repo']
+              docs_paths = tool_config.get('docs_path', ['README.md'])
+              
+              if isinstance(docs_paths, str):
+                  docs_paths = [docs_paths]
+              
+              clone_dir = f"temp_{repo.split('/')[-1]}"
+              
+              try:
+                  subprocess.run([
+                      'git', 'clone', '--depth', '1',
+                      f'https://github.com/{repo}.git', clone_dir
+                  ], check=True, capture_output=True)
+                  
+                  content_parts = []
+                  
+                  for docs_path in docs_paths:
+                      source_path = Path(clone_dir) / docs_path
+                      
+                      if source_path.is_file():
+                          with open(source_path, 'r', encoding='utf-8') as f:
+                              content = f.read()
+                              if content.strip():
+                                  # Fix relative links
+                                  repo_base = f"https://github.com/{repo}/blob/main"
+                                  content = re.sub(
+                                      r'!\[([^\]]*)\]\((?!http)([^)]+)\)',
+                                      rf'![\1]({repo_base}/\2)',
+                                      content
+                                  )
+                                  content_parts.append(content)
+                  
+                  return "\n\n".join(content_parts)
+                  
+              except Exception as e:
+                  print(f"Error processing {repo}: {e}")
+                  return ""
+              finally:
+                  if os.path.exists(clone_dir):
+                      subprocess.run(['rm', '-rf', clone_dir], check=False)
+          
+          def create_documentation(tool_config, content, tags, tagging):
+              # Create frontmatter
+              frontmatter = {
+                  "title": f'"{tool_config["name"]}"',
+                  "description": f'"{tool_config["description"]}"'
+              }
+              
+              # Add tags to frontmatter
+              frontmatter = tagging.add_tags_to_frontmatter(frontmatter, tags)
+              
+              # Build document
+              yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+              doc = f"---\n{yaml_fm}---\n\n"
+              
+              # Add tool header
+              doc += f"# {tool_config['name']}\n\n"
+              
+              # Add repository card
+              doc += '<CardGroup cols={2}>\n'
+              doc += f'  <Card title="Repository" icon="github" href="https://github.com/{tool_config["repo"]}">\n'
+              doc += f'    {tool_config["repo"]}\n'
+              doc += '  </Card>\n'
+              
+              # Add subdomain card if available
+              if tool_config.get("subdomain"):
+                  doc += f'  <Card title="Quick Access" icon="link" href="https://{tool_config["subdomain"]}.yourdomain.com">\n'
+                  doc += f'    {tool_config["subdomain"]}.yourdomain.com\n'
+                  doc += '  </Card>\n'
+              
+              doc += '</CardGroup>\n\n'
+              
+              # Add tag display
+              tag_display = tagging.create_tag_display(tags)
+              if tag_display:
+                  doc += tag_display
+              
+              # Add tool description
+              doc += f"{tool_config['description']}\n\n"
+              
+              # Add content
+              if content:
+                  doc += "## Documentation\n\n"
+                  doc += content
+              
+              return doc
+          
+          # Run processing
+          if __name__ == "__main__":
+              result = process_specterops_tools()
+              print(f"✅ Processed {len(result)} tools")
+          EOF
+      
+      - name: Process Documentation
+        run: |
+          python process_docs.py
+      
+      - name: Create Mintlify Configuration
+        run: |
+          cat > mint.json << 'EOF'
+          {
+            "$schema": "https://mintlify.com/schema.json",
+            "name": "SpecterOps Documentation Hub",
+            "logo": {
+              "dark": "/logo/specterops-dark.svg",
+              "light": "/logo/specterops-light.svg"
+            },
+            "favicon": "/favicon.ico",
+            "colors": {
+              "primary": "#FF4B4B",
+              "light": "#FF6B6B",
+              "dark": "#E53E3E"
+            },
+            "topbarCtaButton": {
+              "name": "SpecterOps",
+              "url": "https://specterops.io"
+            },
+            "navigation": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "docs/tools/browse/index"
+                ]
+              },
+              {
+                "group": "Browse by Tags",
+                "pages": [
+                  "docs/tools/browse/platforms",
+                  "docs/tools/browse/techniques", 
+                  "docs/tools/browse/environments",
+                  "docs/tools/browse/categories",
+                  "docs/tools/browse/roles"
+                ]
+              },
+              {
+                "group": "Core Platforms",
+                "pages": [
+                  "docs/tools/core-platforms/bloodhound_community_edition/index",
+                  "docs/tools/core-platforms/ghostwriter/index",
+                  "docs/tools/core-platforms/nemesis/index"
+                ]
+              },
+              {
+                "group": "C2 Frameworks",
+                "pages": [
+                  "docs/tools/c2-frameworks/mythic_c2/index"
+                ]
+              },
+              {
+                "group": "Utilities",
+                "pages": [
+                  "docs/tools/utilities/sharpsccm/index",
+                  "docs/tools/utilities/sharphound/index"
+                ]
+              }
+            ],
+            "footerSocials": {
+              "github": "https://github.com/SpecterOps",
+              "x": "https://x.com/specterops"
+            },
+            "search": {
+              "prompt": "Search tools, techniques, platforms..."
+            }
+          }
+          EOF
+      
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "${{ env.GIT_AUTHOR_EMAIL }}"
+          git config --local user.name "${{ env.GIT_AUTHOR_NAME }}"
+          
+          git add docs/ mint.json
+          
+          if ! git diff --staged --quiet; then
+            TOOL_COUNT=$(find docs/tools -name "index.md" -not -path "docs/tools/browse/*" | wc -l)
+            
+            git commit -m "🔄 Update SpecterOps documentation
+
+            Processed: ${TOOL_COUNT} tools
+            Updated: $(date '+%Y-%m-%d %H:%M UTC')
+            
+            Features:
+            - Comprehensive tagging system
+            - Browse by categories
+            - Tool integration mapping
+            - Subdomain routing ready"
+            
+            git push
+            echo "✅ Documentation updated successfully"
+          else
+            echo "No changes to commit"
+          fi
