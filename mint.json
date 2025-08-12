@@ -1,8 +1,81 @@
 {
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "SpecterOps Documentation Hub",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
   "favicon": "/favicon.ico",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373"
+    "primary": "#DC143C",
+    "light": "#FF6B6B",
+    "dark": "#B71C1C",
+    "anchors": {
+      "from": "#DC143C",
+      "to": "#FF6B6B"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "SpecterOps",
+      "url": "https://specterops.io"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/specterops"
+  },
+  "tabs": [
+    {
+      "name": "Tools",
+      "url": "tools"
+    },
+    {
+      "name": "Frameworks",
+      "url": "frameworks"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "SpecterOps",
+      "icon": "house",
+      "url": "https://specterops.io"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/specterops"
+    },
+    {
+      "name": "Blog",
+      "icon": "newspaper",
+      "url": "https://posts.specterops.io"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Tools",
+      "pages": [
+        "tools/overview"
+      ]
+    },
+    {
+      "group": "Frameworks", 
+      "pages": [
+        "frameworks/overview"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/specterops",
+    "github": "https://github.com/specterops",
+    "linkedin": "https://linkedin.com/company/specterops"
   }
 }
