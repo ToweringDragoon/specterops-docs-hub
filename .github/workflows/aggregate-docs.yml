@@ -1,226 +1,285 @@
-name: SpecterOps Complete Documentation Aggregator
+name: Simple SpecterOps Documentation
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 6 * * *'  # Daily at 6 AM
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/*.yml']
-
-env:
-  GIT_AUTHOR_NAME: SpecterOps Documentation Bot
-  GIT_AUTHOR_EMAIL: docs-bot@specterops.io
 
 jobs:
-  aggregate-complete-documentation:
+  process-docs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
       
-      - name: Setup Python Environment
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
       
       - name: Install Dependencies
-        run: |
-          pip install requests pyyaml beautifulsoup4 lxml markdownify
-          
-      - name: Setup Directory Structure
-        run: |
-          rm -rf docs/tools/*
-          mkdir -p docs/tools/{core-platforms,c2-frameworks,data-analysis,utilities,browse}
+        run: pip install pyyaml
       
-      - name: Create Tagging System
+      - name: Clear Previous Docs
         run: |
-          cat > tagging_system.py << 'EOF'
-          import json
+          rm -rf docs/tools
+          mkdir -p docs/tools/{core-platforms,c2-frameworks,utilities}
+      
+      - name: Create Simple Processor
+        run: |
+          cat > simple_processor.py << 'EOF'
+          import subprocess
+          import yaml
           import re
           from pathlib import Path
-          from collections import defaultdict
-          import yaml
+          import os
           
-          class SpecterOpsTagging:
+          class SimpleGitHubProcessor:
               def __init__(self):
-                  self.manual_tags = {
-                      "bloodhound_community_edition": {
-                          "platforms": ["windows", "linux", "macos"],
-                          "techniques": ["reconnaissance", "lateral-movement"],
-                          "environments": ["active-directory", "azure"],
-                          "categories": ["data-analysis", "enumeration"],
-                          "roles": ["red-team", "blue-team"],
-                          "difficulty": ["intermediate"]
+                  self.tools = [
+                      {
+                          "name": "BloodHound Community Edition",
+                          "repo": "SpecterOps/BloodHound",
+                          "category": "core-platforms",
+                          "description": "Attack path analysis for Active Directory and Azure"
                       },
-                      "mythic_c2": {
-                          "platforms": ["windows", "macos", "linux"],
-                          "techniques": ["command-control", "execution", "persistence"],
-                          "environments": ["active-directory", "azure"],
-                          "categories": ["c2-framework", "post-exploitation"],
-                          "roles": ["red-team", "consultant"],
-                          "difficulty": ["intermediate", "advanced"]
+                      {
+                          "name": "Ghostwriter", 
+                          "repo": "GhostManager/Ghostwriter",
+                          "category": "core-platforms",
+                          "description": "Project management and reporting engine"
                       },
-                      "ghostwriter": {
-                          "platforms": ["cross-platform"],
-                          "categories": ["reporting", "infrastructure"],
-                          "roles": ["red-team", "consultant", "blue-team"],
-                          "difficulty": ["beginner", "intermediate"],
-                          "integrations": ["mythic", "cobalt-strike"]
+                      {
+                          "name": "Nemesis",
+                          "repo": "SpecterOps/Nemesis", 
+                          "category": "core-platforms",
+                          "description": "Offensive data enrichment pipeline"
                       },
-                      "nemesis": {
-                          "platforms": ["cross-platform"],
-                          "techniques": ["collection", "reconnaissance"],
-                          "environments": ["active-directory", "azure"],
-                          "categories": ["data-analysis", "post-exploitation"],
-                          "roles": ["red-team", "researcher"],
-                          "difficulty": ["advanced"]
+                      {
+                          "name": "Mythic C2",
+                          "repo": "its-a-feature/Mythic",
+                          "category": "c2-frameworks", 
+                          "description": "Multi-platform C2 framework"
                       },
-                      "sharpsccm": {
-                          "platforms": ["windows"],
-                          "techniques": ["lateral-movement", "privilege-escalation"],
-                          "environments": ["active-directory"],
-                          "categories": ["post-exploitation", "enumeration"],
-                          "roles": ["red-team"],
-                          "difficulty": ["intermediate"]
+                      {
+                          "name": "SharpSCCM",
+                          "repo": "Mayyhem/SharpSCCM",
+                          "category": "utilities",
+                          "description": "SCCM post-exploitation tool"
                       },
-                      "sharphound": {
-                          "platforms": ["windows"],
-                          "techniques": ["reconnaissance"],
-                          "environments": ["active-directory"],
-                          "categories": ["enumeration", "data-analysis"],
-                          "roles": ["red-team", "blue-team"],
-                          "difficulty": ["beginner"],
-                          "integrations": ["bloodhound"]
+                      {
+                          "name": "SharpHound",
+                          "repo": "BloodHoundAD/SharpHound",
+                          "category": "utilities", 
+                          "description": "BloodHound data collector"
                       }
-                  }
+                  ]
               
-              def get_tool_tags(self, tool_name):
-                  safe_name = re.sub(r'[^\w\-]', '_', tool_name.lower()).replace(' ', '_')
-                  return self.manual_tags.get(safe_name, {})
-              
-              def add_tags_to_frontmatter(self, frontmatter, tags):
-                  if tags:
-                      frontmatter["tags"] = []
-                      frontmatter["tag_categories"] = {}
+              def process_all_tools(self):
+                  for tool in self.tools:
+                      print(f"Processing {tool['name']}...")
                       
-                      for category, tag_list in tags.items():
-                          if tag_list:
-                              frontmatter["tag_categories"][category] = tag_list
-                              frontmatter["tags"].extend(tag_list)
-                  
-                  return frontmatter
+                      safe_name = self.make_safe_name(tool['name'])
+                      tool_dir = Path(f"docs/tools/{tool['category']}/{safe_name}")
+                      tool_dir.mkdir(parents=True, exist_ok=True)
+                      
+                      if not self.try_process_wiki(tool, tool_dir):
+                          self.process_readme_and_docs(tool, tool_dir)
               
-              def create_tag_display(self, tags):
-                  if not tags:
+              def try_process_wiki(self, tool, tool_dir):
+                  repo = tool['repo']
+                  wiki_url = f"https://github.com/{repo}.wiki.git"
+                  clone_dir = f"temp_wiki_{self.make_safe_name(tool['name'])}"
+                  
+                  try:
+                      result = subprocess.run([
+                          'git', 'clone', wiki_url, clone_dir
+                      ], capture_output=True, text=True)
+                      
+                      if result.returncode != 0:
+                          return False
+                      
+                      wiki_path = Path(clone_dir)
+                      md_files = list(wiki_path.glob("*.md"))
+                      
+                      if not md_files:
+                          subprocess.run(['rm', '-rf', clone_dir], check=False)
+                          return False
+                      
+                      print(f"  Found wiki with {len(md_files)} pages")
+                      
+                      for md_file in md_files:
+                          self.process_wiki_page(md_file, tool_dir, tool, repo)
+                      
+                      subprocess.run(['rm', '-rf', clone_dir], check=False)
+                      return True
+                      
+                  except Exception as e:
+                      print(f"  Wiki processing failed: {e}")
+                      if os.path.exists(clone_dir):
+                          subprocess.run(['rm', '-rf', clone_dir], check=False)
+                      return False
+              
+              def process_wiki_page(self, md_file, tool_dir, tool, repo):
+                  try:
+                      with open(md_file, 'r', encoding='utf-8') as f:
+                          content = f.read()
+                      
+                      if md_file.name == "Home.md":
+                          output_name = "index.md"
+                          title = tool['name']
+                      else:
+                          output_name = f"{md_file.stem.lower().replace(' ', '-')}.md"
+                          title = md_file.stem.replace('-', ' ').replace('_', ' ')
+                      
+                      # Fix wiki links: [[Page Name]] -> [Page Name](./page-name)
+                      content = re.sub(r'\[\[([^\]]+)\]\]', self.convert_wiki_link, content)
+                      
+                      # Fix image paths
+                      content = re.sub(
+                          r'!\[([^\]]*)\]\((?!https?)([^)]+)\)',
+                          rf'![\1](https://github.com/{repo}/wiki/\2)',
+                          content
+                      )
+                      
+                      frontmatter = {
+                          "title": title,
+                          "description": f"{title} documentation"
+                      }
+                      
+                      self.write_markdown_file(tool_dir / output_name, frontmatter, content)
+                      
+                  except Exception as e:
+                      print(f"  Error processing {md_file.name}: {e}")
+              
+              def convert_wiki_link(self, match):
+                  page_name = match.group(1)
+                  link_name = page_name.lower().replace(' ', '-').replace('_', '-')
+                  return f"[{page_name}](./{link_name})"
+              
+              def process_readme_and_docs(self, tool, tool_dir):
+                  repo = tool['repo']
+                  clone_dir = f"temp_{self.make_safe_name(tool['name'])}"
+                  
+                  try:
+                      subprocess.run([
+                          'git', 'clone', '--depth', '1',
+                          f'https://github.com/{repo}.git', clone_dir
+                      ], check=True, capture_output=True)
+                      
+                      repo_path = Path(clone_dir)
+                      
+                      readme_content = self.get_readme_content(repo_path, repo)
+                      docs_content = self.get_docs_content(repo_path, repo)
+                      
+                      full_content = f"# {tool['name']}\n\n{tool['description']}\n\n"
+                      
+                      if readme_content:
+                          full_content += readme_content
+                      
+                      if docs_content:
+                          full_content += "\n\n## Additional Documentation\n\n" + docs_content
+                      
+                      frontmatter = {
+                          "title": tool['name'],
+                          "description": tool['description']
+                      }
+                      
+                      self.write_markdown_file(tool_dir / "index.md", frontmatter, full_content)
+                      
+                      subprocess.run(['rm', '-rf', clone_dir], check=False)
+                      print(f"  Processed README and docs")
+                      
+                  except Exception as e:
+                      print(f"  Error processing repository: {e}")
+                      if os.path.exists(clone_dir):
+                          subprocess.run(['rm', '-rf', clone_dir], check=False)
+              
+              def get_readme_content(self, repo_path, repo):
+                  readme_files = ['README.md', 'readme.md', 'Readme.md']
+                  
+                  for readme_file in readme_files:
+                      readme_path = repo_path / readme_file
+                      if readme_path.exists():
+                          try:
+                              with open(readme_path, 'r', encoding='utf-8') as f:
+                                  content = f.read()
+                              return self.fix_relative_links(content, repo)
+                          except:
+                              continue
+                  
+                  return ""
+              
+              def get_docs_content(self, repo_path, repo):
+                  docs_path = repo_path / "docs"
+                  if not docs_path.exists():
                       return ""
                   
-                  display = ""
-                  for category, tag_list in tags.items():
-                      if tag_list:
-                          category_name = category.replace("-", " ").title()
-                          tag_names = [tag.replace("-", " ").title() for tag in tag_list]
-                          display += f"**{category_name}**: {', '.join(tag_names)}\n\n"
+                  content_parts = []
                   
-                  return display + "\n"
+                  for md_file in docs_path.rglob("*.md"):
+                      try:
+                          with open(md_file, 'r', encoding='utf-8') as f:
+                              file_content = f.read()
+                          
+                          section_name = md_file.stem.replace('-', ' ').replace('_', ' ').title()
+                          processed_content = self.fix_relative_links(file_content, repo)
+                          content_parts.append(f"### {section_name}\n\n{processed_content}")
+                          
+                      except:
+                          continue
+                  
+                  return "\n\n".join(content_parts)
+              
+              def fix_relative_links(self, content, repo):
+                  # Fix image links
+                  content = re.sub(
+                      r'!\[([^\]]*)\]\((?!https?)([^)]+)\)',
+                      rf'![\1](https://github.com/{repo}/blob/main/\2)',
+                      content
+                  )
+                  
+                  # Fix relative markdown links
+                  content = re.sub(
+                      r'\[([^\]]+)\]\((?!https?)([^)]+\.md)\)',
+                      rf'[\1](https://github.com/{repo}/blob/main/\2)',
+                      content
+                  )
+                  
+                  return content
+              
+              def write_markdown_file(self, file_path, frontmatter, content):
+                  yaml_content = yaml.dump(frontmatter, default_flow_style=False)
+                  full_content = f"---\n{yaml_content}---\n\n{content}"
+                  
+                  with open(file_path, 'w', encoding='utf-8') as f:
+                      f.write(full_content)
+              
+              def make_safe_name(self, name):
+                  return re.sub(r'[^\w\s-]', '', name).strip().lower().replace(' ', '_')
+          
+          def main():
+              processor = SimpleGitHubProcessor()
+              processor.process_all_tools()
+              print("✅ Processing complete")
+          
+          if __name__ == "__main__":
+              main()
           EOF
       
-      - name: Process Complete Documentation
-        run: |
-          cd scripts
-          python complete_docs_processor.py
+      - name: Process Documentation
+        run: python compl_processor.py
       
-      - name: Create Browse Pages
-        run: |
-          python -c "
-          exec(open('tagging_system.py').read())
-          from pathlib import Path
-          import json
-          
-          # Create simple browse structure
-          browse_dir = Path('docs/tools/browse')
-          browse_dir.mkdir(exist_ok=True)
-          
-          with open(browse_dir / 'index.md', 'w') as f:
-              f.write('''---
-          title: \"Browse Tools by Tags\"
-          description: \"Find SpecterOps tools by category\"
-          ---
-          
-          # Browse Tools by Tags
-          
-          <CardGroup cols={2}>
-            <Card title=\"By Platform\" href=\"./platforms\">
-              Windows, macOS, Linux, Cross-platform
-            </Card>
-            <Card title=\"By Technique\" href=\"./techniques\">
-              Reconnaissance, Lateral Movement, etc.
-            </Card>
-            <Card title=\"By Environment\" href=\"./environments\">
-              Active Directory, Azure, AWS
-            </Card>
-            <Card title=\"By Role\" href=\"./roles\">
-              Red Team, Blue Team, Research
-            </Card>
-          </CardGroup>
-          ''')
-          
-          # Create basic category pages
-          categories = ['platforms', 'techniques', 'environments', 'roles']
-          for category in categories:
-              with open(browse_dir / f'{category}.md', 'w') as f:
-                  title = category.replace('-', ' ').title()
-                  f.write(f'''---
-          title: \"Browse by {title}\"
-          description: \"Find tools by {title.lower()}\"
-          ---
-          
-          # Browse by {title}
-          
-          Browse tools organized by {title.lower()}.
-          ''')
-          "
-      
-      - name: Create Updated Mintlify Configuration
+      - name: Create Mintlify Config
         run: |
           cat > mint.json << 'EOF'
           {
             "$schema": "https://mintlify.com/schema.json",
-            "name": "SpecterOps Documentation Hub",
-            "logo": {
-              "dark": "/logo/specterops-dark.svg",
-              "light": "/logo/specterops-light.svg"
-            },
-            "favicon": "/favicon.ico",
-            "colors": {
-              "primary": "#FF4B4B",
-              "light": "#FF6B6B",
-              "dark": "#E53E3E"
-            },
-            "topbarCtaButton": {
-              "name": "SpecterOps",
-              "url": "https://specterops.io"
-            },
+            "name": "SpecterOps Tools Documentation",
             "navigation": [
-              {
-                "group": "Getting Started",
-                "pages": [
-                  "docs/tools/browse/index"
-                ]
-              },
-              {
-                "group": "Browse by Tags",
-                "pages": [
-                  "docs/tools/browse/platforms",
-                  "docs/tools/browse/techniques", 
-                  "docs/tools/browse/environments",
-                  "docs/tools/browse/roles"
-                ]
-              },
               {
                 "group": "Core Platforms",
                 "pages": [
@@ -242,41 +301,18 @@ jobs:
                   "docs/tools/utilities/sharphound/index"
                 ]
               }
-            ],
-            "footerSocials": {
-              "github": "https://github.com/SpecterOps",
-              "x": "https://x.com/specterops"
-            },
-            "search": {
-              "prompt": "Search tools, techniques, platforms..."
-            }
+            ]
           }
           EOF
       
-      - name: Commit and Push Changes
+      - name: Commit Changes
         run: |
-          git config --local user.email "${{ env.GIT_AUTHOR_EMAIL }}"
-          git config --local user.name "${{ env.GIT_AUTHOR_NAME }}"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           
           git add docs/ mint.json
           
           if ! git diff --staged --quiet; then
-            TOOL_COUNT=$(find docs/tools -name "*.md" -not -path "docs/tools/browse/*" | wc -l)
-            
-            git commit -m "🔄 Update SpecterOps complete documentation
-
-            Features:
-            - GitHub Wiki: Full wiki content and navigation
-            - GitBook: Complete GitBook sites converted
-            - Mintlify Sites: Existing documentation sites
-            - External Docs: Full documentation sites like docs.mythic-c2.net
-            - Smart tagging system with browse functionality
-            
-            Generated: ${TOOL_COUNT} documentation pages
-            Updated: $(date '+%Y-%m-%d %H:%M UTC')"
-            
+            git commit -m "Update SpecterOps documentation - $(date '+%Y-%m-%d')"
             git push
-            echo "✅ Complete documentation updated successfully"
-          else
-            echo "No changes to commit"
           fi
