@@ -24,7 +24,7 @@ jobs:
         run: pip install pyyaml
       
       - name: Process SharpSCCM Wiki
-        run: 
+        run: |
             cd scripts
             python process_sharpsccm.py
       
