@@ -1,12 +1,12 @@
-name: SharpSCCM Documentation
+name: SpecterOps Documentation Hub
 
 on:
-  workflow_dispatch:  # Manual trigger only for now
+  workflow_dispatch:
   schedule:
     - cron: '0 12 * * *'  # Daily at noon
 
 jobs:
-  process-sharpsccm:
+  process-documentation:
     runs-on: ubuntu-latest
     
     steps:
@@ -21,77 +21,63 @@ jobs:
           python-version: '3.11'
       
       - name: Install Dependencies
-        run: pip install pyyaml requests
+        run: pip install pyyaml
       
-      - name: Process SharpSCCM Wiki
+      - name: Process All Tools
         run: |
-            cd scripts
-            python process_sharpsccm.py
+          cd scripts
+          python tool_manager.py
       
-      - name: Create Mintlify Configuration
+      - name: Generate Mintlify Configuration
         run: |
-          cat > mint.json << 'EOF'
-          {
-            "$schema": "https://mintlify.com/schema.json",
-            "name": "SharpSCCM Documentation",
-            "logo": {
-              "light": "/logo/light.png",
-              "dark": "/logo/dark.png"
-            },
-            "favicon": "/favicon.ico",
-            "colors": {
-              "primary": "#FF4B4B",
-              "light": "#FF6B6B",
-              "dark": "#E53E3E"
-            },
-            "topbarCtaButton": {
-              "name": "GitHub Repository",
-              "url": "https://github.com/Mayyhem/SharpSCCM"
-            },
-            "navigation": [
-              {
-                "group": "SharpSCCM Documentation",
-                "pages": [
-                  "docs/sharpsccm/index",
-                  "docs/sharpsccm/command-line-usage",
-                  "docs/sharpsccm/local",
-                  "docs/sharpsccm/get",
-                  "docs/sharpsccm/invoke",
-                  "docs/sharpsccm/exec"
-                ]
-              }
-            ],
-            "footerSocials": {
-              "github": "https://github.com/Mayyhem/SharpSCCM"
-            },
-            "search": {
-              "prompt": "Search SharpSCCM documentation..."
-            }
-          }
-          EOF
+          python scripts/generate_mintlify_config.py
       
-      - name: Show What Was Created
+      - name: Show Results
         run: |
-          echo "📁 Created files:"
+          echo "📁 Created documentation:"
           find docs -name "*.md" | sort
           echo ""
-          echo "📝 Navigation structure:"
-          if [ -f "docs/sharpsccm/_navigation.json" ]; then
-            cat docs/sharpsccm/_navigation.json
+          echo "📊 Processing summary:"
+          if [ -f "_processing_results.json" ]; then
+            cat _processing_results.json
           fi
       
-      - name: Commit Changes
+      - name: Commit and Push
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name "Documentation Bot"
           
-          git add docs/ mint.json
+          git add docs/ mint.json _processing_results.json
           
           if ! git diff --staged --quiet; then
-            FILES_COUNT=$(find docs -name "*.md" | wc -l)
-            git commit -m "📚 Add SharpSCCM documentation (${FILES_COUNT} pages) - $(date '+%Y-%m-%d %H:%M')"
+            TOOLS_COUNT=$(python3 -c "
+            import json
+            try:
+                with open('_processing_results.json') as f:
+                    data = json.load(f)
+                print(data.get('tools_processed', 0))
+            except:
+                print(0)
+            ")
+            
+            PAGES_COUNT=$(python3 -c "
+            import json
+            try:
+                with open('_processing_results.json') as f:
+                    data = json.load(f)
+                print(data.get('total_pages', 0))
+            except:
+                print(0)
+            ")
+            
+            git commit -m "📚 Update SpecterOps Documentation
+
+            Tools processed: ${TOOLS_COUNT}
+            Total pages: ${PAGES_COUNT}
+            Updated: $(date '+%Y-%m-%d %H:%M UTC')"
+            
             git push
-            echo "✅ Changes committed and pushed"
+            echo "✅ Documentation updated successfully"
           else
             echo "ℹ️  No changes to commit"
           fi
