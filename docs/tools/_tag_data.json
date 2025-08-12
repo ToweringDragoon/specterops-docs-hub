@@ -1,0 +1,151 @@
+{
+  "core-platforms/bloodhound_community_edition": {
+    "name": "BloodHound Community Edition",
+    "tags": {
+      "platforms": [
+        "windows",
+        "linux",
+        "macos"
+      ],
+      "techniques": [
+        "reconnaissance",
+        "lateral-movement"
+      ],
+      "environments": [
+        "active-directory",
+        "azure"
+      ],
+      "categories": [
+        "data-analysis",
+        "enumeration"
+      ],
+      "roles": [
+        "red-team",
+        "blue-team"
+      ],
+      "difficulty": [
+        "intermediate"
+      ]
+    }
+  },
+  "core-platforms/ghostwriter": {
+    "name": "Ghostwriter",
+    "tags": {
+      "platforms": [
+        "cross-platform"
+      ],
+      "categories": [
+        "reporting",
+        "infrastructure"
+      ],
+      "roles": [
+        "red-team",
+        "consultant",
+        "blue-team"
+      ],
+      "difficulty": [
+        "beginner",
+        "intermediate"
+      ],
+      "integrations": [
+        "mythic",
+        "cobalt-strike"
+      ]
+    }
+  },
+  "core-platforms/nemesis": {
+    "name": "Nemesis",
+    "tags": {
+      "platforms": [
+        "cross-platform"
+      ],
+      "environments": [
+        "azure"
+      ]
+    }
+  },
+  "c2-frameworks/mythic_c2": {
+    "name": "Mythic C2",
+    "tags": {
+      "platforms": [
+        "windows",
+        "macos",
+        "linux"
+      ],
+      "techniques": [
+        "command-control",
+        "execution",
+        "persistence"
+      ],
+      "environments": [
+        "active-directory",
+        "azure"
+      ],
+      "categories": [
+        "c2-framework",
+        "post-exploitation"
+      ],
+      "roles": [
+        "red-team",
+        "consultant"
+      ],
+      "difficulty": [
+        "intermediate",
+        "advanced"
+      ]
+    }
+  },
+  "utilities/sharpsccm": {
+    "name": "SharpSCCM",
+    "tags": {
+      "platforms": [
+        "windows"
+      ],
+      "techniques": [
+        "lateral-movement",
+        "privilege-escalation"
+      ],
+      "environments": [
+        "active-directory"
+      ],
+      "categories": [
+        "post-exploitation",
+        "enumeration"
+      ],
+      "roles": [
+        "red-team"
+      ],
+      "difficulty": [
+        "intermediate"
+      ]
+    }
+  },
+  "utilities/sharphound": {
+    "name": "SharpHound",
+    "tags": {
+      "platforms": [
+        "windows"
+      ],
+      "techniques": [
+        "reconnaissance"
+      ],
+      "environments": [
+        "active-directory"
+      ],
+      "categories": [
+        "enumeration",
+        "data-analysis"
+      ],
+      "roles": [
+        "red-team",
+        "blue-team"
+      ],
+      "difficulty": [
+        "beginner"
+      ],
+      "integrations": [
+        "bloodhound"
+      ]
+    }
+  }
+}
