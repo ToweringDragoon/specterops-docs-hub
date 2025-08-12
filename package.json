@@ -1,0 +1,42 @@
+{
+  "name": "specterops-docs-hub",
+  "version": "1.0.0",
+  "description": "Centralized documentation hub for SpecterOps tooling",
+  "main": "index.js",
+  "scripts": {
+    "dev": "mintlify dev",
+    "build": "mintlify build",
+    "sync": "npm run sync:bloodhound && npm run sync:mythic && npm run sync:sharpsccm",
+    "sync:bloodhound": "node scripts/sync-bloodhound.js",
+    "sync:mythic": "node scripts/sync-mythic.js", 
+    "sync:sharpsccm": "python scripts/sync-sharpsccm.py",
+    "update-nav": "node scripts/update-navigation.js",
+    "deploy": "mintlify deploy",
+    "setup": "npm install && mkdir -p scripts bloodhound mythic sharpsccm"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "mintlify": "^4.0.0"
+  },
+  "devDependencies": {
+    "@mintlify/scraping": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpecterOps/docs-hub.git"
+  },
+  "keywords": [
+    "specterops",
+    "documentation",
+    "bloodhound",
+    "mythic",
+    "sharpsccm",
+    "mintlify"
+  ],
+  "author": "SpecterOps",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.8"
+  }
+}

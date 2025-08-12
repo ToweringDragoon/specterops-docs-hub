@@ -1,60 +1,67 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
   "name": "SpecterOps Documentation Hub",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
-  "favicon": "/favicon.ico",
+  "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#DC143C",
-    "light": "#FF6B6B",
-    "dark": "#B71C1C",
+    "primary": "#FF6B35",
+    "light": "#FF6B35",
+    "dark": "#FF6B35",
     "anchors": {
-      "from": "#DC143C",
-      "to": "#FF6B6B"
+      "from": "#FF6B35",
+      "to": "#FF8E6B"
     }
   },
   "topbarLinks": [
     {
       "name": "SpecterOps",
       "url": "https://specterops.io"
+    },
+    {
+      "name": "Enterprise",
+      "url": "https://specterops.io/bloodhound-overview/"
     }
   ],
   "topbarCtaButton": {
-    "name": "GitHub",
-    "url": "https://github.com/specterops"
+    "name": "Get Started",
+    "url": "https://github.com/SpecterOps"
   },
   "tabs": [
     {
-      "name": "Tools",
-      "url": "tools"
+      "name": "BloodHound",
+      "url": "bloodhound"
     },
     {
-      "name": "Frameworks",
-      "url": "frameworks"
+      "name": "Mythic",
+      "url": "mythic"
+    },
+    {
+      "name": "SharpSCCM",
+      "url": "sharpsccm"
     }
   ],
   "anchors": [
     {
-      "name": "SpecterOps",
-      "icon": "house",
-      "url": "https://specterops.io"
-    },
-    {
-      "name": "GitHub",
-      "icon": "github",
-      "url": "https://github.com/specterops"
+      "name": "Community",
+      "icon": "discord",
+      "url": "https://ghst.ly/BHSlack"
     },
     {
       "name": "Blog",
       "icon": "newspaper",
       "url": "https://posts.specterops.io"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/SpecterOps"
     }
   ],
   "navigation": [
     {
-      "group": "Getting Started",
+      "group": "Welcome",
       "pages": [
         "introduction",
         "quickstart"
@@ -63,19 +70,20 @@
     {
       "group": "Tools",
       "pages": [
-        "tools/overview"
-      ]
-    },
-    {
-      "group": "Frameworks", 
-      "pages": [
-        "frameworks/overview"
+        "tools/bloodhound",
+        "tools/mythic", 
+        "tools/sharpsccm"
       ]
     }
   ],
   "footerSocials": {
-    "twitter": "https://twitter.com/specterops",
-    "github": "https://github.com/specterops",
-    "linkedin": "https://linkedin.com/company/specterops"
+    "twitter": "https://twitter.com/SpecterOps",
+    "github": "https://github.com/SpecterOps",
+    "linkedin": "https://www.linkedin.com/company/specterops"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
   }
 }

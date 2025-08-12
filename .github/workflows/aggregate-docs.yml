@@ -1,84 +1,69 @@
-name: SpecterOps Documentation Hub
+name: Sync Documentation
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'  # Daily at noon
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch:
+  repository_dispatch:
+    types: [docs-update]
 
 jobs:
-  process-documentation:
+  sync-docs:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Setup Python
-        uses: actions/setup-python@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
-      
-      - name: Install Dependencies
-        run: pip install pyyaml
-      
-      - name: Process All Tools
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install sync tools
         run: |
-          cd scripts
-          python tool_manager.py
-      
-      - name: Generate Mintlify Configuration
+          npm install -g @mintlify/scraping
+          pip install requests beautifulsoup4 markdown
+
+      - name: Sync BloodHound docs
         run: |
-          python scripts/generate_mintlify_config.py
-      
-      - name: Show Results
+          node scripts/sync-bloodhound.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync Mythic docs
         run: |
-          echo "📁 Created documentation:"
-          find docs -name "*.md" | sort
-          echo ""
-          echo "📊 Processing summary:"
-          if [ -f "_processing_results.json" ]; then
-            cat _processing_results.json
-          fi
-      
-      - name: Commit and Push
+          node scripts/sync-mythic.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync SharpSCCM wiki
+        run: |
+          python scripts/sync-sharpsccm.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update navigation
+        run: |
+          node scripts/update-navigation.js
+
+      - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "Documentation Bot"
-          
-          git add docs/ mint.json
-          git add _processing_results.json 2>/dev/null || true
-          
+          git config --local user.name "GitHub Action"
+          git add .
           if ! git diff --staged --quiet; then
-            TOOLS_COUNT=$(python3 -c "
-            import json
-            try:
-                with open('_processing_results.json') as f:
-                    data = json.load(f)
-                print(data.get('tools_processed', 0))
-            except:
-                print(0)
-            ")
-            
-            PAGES_COUNT=$(python3 -c "
-            import json
-            try:
-                with open('_processing_results.json') as f:
-                    data = json.load(f)
-                print(data.get('total_pages', 0))
-            except:
-                print(0)
-            ")
-            
-            git commit -m "📚 Update SpecterOps Documentation
-
-            Tools processed: ${TOOLS_COUNT}
-            Total pages: ${PAGES_COUNT}
-            Updated: $(date '+%Y-%m-%d %H:%M UTC')"
-            
+            git commit -m "Sync documentation from upstream repos"
             git push
-            echo "✅ Documentation updated successfully"
-          else
-            echo "ℹ️  No changes to commit"
           fi
+
+      - name: Deploy to Mintlify
+        run: |
+          npx mintlify deploy
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}
