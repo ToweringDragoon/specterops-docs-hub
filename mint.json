@@ -1,36 +1,7 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "SpecterOps Documentation Hub",
-  "logo": {
-    "dark": "/logo/specterops-dark.svg",
-    "light": "/logo/specterops-light.svg"
-  },
-  "favicon": "/favicon.ico",
-  "colors": {
-    "primary": "#FF4B4B",
-    "light": "#FF6B6B",
-    "dark": "#E53E3E"
-  },
-  "topbarCtaButton": {
-    "name": "SpecterOps",
-    "url": "https://specterops.io"
-  },
+  "name": "SpecterOps Tools Documentation",
   "navigation": [
-    {
-      "group": "Getting Started",
-      "pages": [
-        "docs/tools/browse/index"
-      ]
-    },
-    {
-      "group": "Browse by Tags",
-      "pages": [
-        "docs/tools/browse/platforms",
-        "docs/tools/browse/techniques", 
-        "docs/tools/browse/environments",
-        "docs/tools/browse/roles"
-      ]
-    },
     {
       "group": "Core Platforms",
       "pages": [
@@ -52,12 +23,5 @@
         "docs/tools/utilities/sharphound/index"
       ]
     }
-  ],
-  "footerSocials": {
-    "github": "https://github.com/SpecterOps",
-    "x": "https://x.com/specterops"
-  },
-  "search": {
-    "prompt": "Search tools, techniques, platforms..."
-  }
+  ]
 }
