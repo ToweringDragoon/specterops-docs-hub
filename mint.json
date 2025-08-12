@@ -1,27 +1,8 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
-  "name": "SpecterOps Tools Documentation",
-  "navigation": [
-    {
-      "group": "Core Platforms",
-      "pages": [
-        "docs/tools/core-platforms/bloodhound_community_edition/index",
-        "docs/tools/core-platforms/ghostwriter/index",
-        "docs/tools/core-platforms/nemesis/index"
-      ]
-    },
-    {
-      "group": "C2 Frameworks",
-      "pages": [
-        "docs/tools/c2-frameworks/mythic_c2/index"
-      ]
-    },
-    {
-      "group": "Utilities",
-      "pages": [
-        "docs/tools/utilities/sharpsccm/index",
-        "docs/tools/utilities/sharphound/index"
-      ]
-    }
-  ]
+  "favicon": "/favicon.ico",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373"
+  }
 }
