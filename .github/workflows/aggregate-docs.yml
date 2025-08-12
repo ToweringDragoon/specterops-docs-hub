@@ -1,16 +1,16 @@
-name: Simple SpecterOps Documentation
+name: SharpSCCM Documentation
 
 on:
+  workflow_dispatch:  # Manual trigger only for now
   schedule:
-    - cron: '0 6 * * *'  # Daily at 6 AM
-  workflow_dispatch:
+    - cron: '0 12 * * *'  # Daily at noon
 
 jobs:
-  process-docs:
+  process-sharpsccm:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -23,287 +23,62 @@ jobs:
       - name: Install Dependencies
         run: pip install pyyaml
       
-      - name: Clear Previous Docs
-        run: |
-          rm -rf docs/tools
-          mkdir -p docs/tools/{core-platforms,c2-frameworks,utilities}
+      - name: Process SharpSCCM Wiki
+        run: 
+            cd scripts
+            python process_sharpsccm.py
       
-      - name: Create Simple Processor
-        run: |
-          cat > simple_processor.py << 'EOF'
-          import subprocess
-          import yaml
-          import re
-          from pathlib import Path
-          import os
-          
-          class SimpleGitHubProcessor:
-              def __init__(self):
-                  self.tools = [
-                      {
-                          "name": "BloodHound Community Edition",
-                          "repo": "SpecterOps/BloodHound",
-                          "category": "core-platforms",
-                          "description": "Attack path analysis for Active Directory and Azure"
-                      },
-                      {
-                          "name": "Ghostwriter", 
-                          "repo": "GhostManager/Ghostwriter",
-                          "category": "core-platforms",
-                          "description": "Project management and reporting engine"
-                      },
-                      {
-                          "name": "Nemesis",
-                          "repo": "SpecterOps/Nemesis", 
-                          "category": "core-platforms",
-                          "description": "Offensive data enrichment pipeline"
-                      },
-                      {
-                          "name": "Mythic C2",
-                          "repo": "its-a-feature/Mythic",
-                          "category": "c2-frameworks", 
-                          "description": "Multi-platform C2 framework"
-                      },
-                      {
-                          "name": "SharpSCCM",
-                          "repo": "Mayyhem/SharpSCCM",
-                          "category": "utilities",
-                          "description": "SCCM post-exploitation tool"
-                      },
-                      {
-                          "name": "SharpHound",
-                          "repo": "BloodHoundAD/SharpHound",
-                          "category": "utilities", 
-                          "description": "BloodHound data collector"
-                      }
-                  ]
-              
-              def process_all_tools(self):
-                  for tool in self.tools:
-                      print(f"Processing {tool['name']}...")
-                      
-                      safe_name = self.make_safe_name(tool['name'])
-                      tool_dir = Path(f"docs/tools/{tool['category']}/{safe_name}")
-                      tool_dir.mkdir(parents=True, exist_ok=True)
-                      
-                      if not self.try_process_wiki(tool, tool_dir):
-                          self.process_readme_and_docs(tool, tool_dir)
-              
-              def try_process_wiki(self, tool, tool_dir):
-                  repo = tool['repo']
-                  wiki_url = f"https://github.com/{repo}.wiki.git"
-                  clone_dir = f"temp_wiki_{self.make_safe_name(tool['name'])}"
-                  
-                  try:
-                      result = subprocess.run([
-                          'git', 'clone', wiki_url, clone_dir
-                      ], capture_output=True, text=True)
-                      
-                      if result.returncode != 0:
-                          return False
-                      
-                      wiki_path = Path(clone_dir)
-                      md_files = list(wiki_path.glob("*.md"))
-                      
-                      if not md_files:
-                          subprocess.run(['rm', '-rf', clone_dir], check=False)
-                          return False
-                      
-                      print(f"  Found wiki with {len(md_files)} pages")
-                      
-                      for md_file in md_files:
-                          self.process_wiki_page(md_file, tool_dir, tool, repo)
-                      
-                      subprocess.run(['rm', '-rf', clone_dir], check=False)
-                      return True
-                      
-                  except Exception as e:
-                      print(f"  Wiki processing failed: {e}")
-                      if os.path.exists(clone_dir):
-                          subprocess.run(['rm', '-rf', clone_dir], check=False)
-                      return False
-              
-              def process_wiki_page(self, md_file, tool_dir, tool, repo):
-                  try:
-                      with open(md_file, 'r', encoding='utf-8') as f:
-                          content = f.read()
-                      
-                      if md_file.name == "Home.md":
-                          output_name = "index.md"
-                          title = tool['name']
-                      else:
-                          output_name = f"{md_file.stem.lower().replace(' ', '-')}.md"
-                          title = md_file.stem.replace('-', ' ').replace('_', ' ')
-                      
-                      # Fix wiki links: [[Page Name]] -> [Page Name](./page-name)
-                      content = re.sub(r'\[\[([^\]]+)\]\]', self.convert_wiki_link, content)
-                      
-                      # Fix image paths
-                      content = re.sub(
-                          r'!\[([^\]]*)\]\((?!https?)([^)]+)\)',
-                          rf'![\1](https://github.com/{repo}/wiki/\2)',
-                          content
-                      )
-                      
-                      frontmatter = {
-                          "title": title,
-                          "description": f"{title} documentation"
-                      }
-                      
-                      self.write_markdown_file(tool_dir / output_name, frontmatter, content)
-                      
-                  except Exception as e:
-                      print(f"  Error processing {md_file.name}: {e}")
-              
-              def convert_wiki_link(self, match):
-                  page_name = match.group(1)
-                  link_name = page_name.lower().replace(' ', '-').replace('_', '-')
-                  return f"[{page_name}](./{link_name})"
-              
-              def process_readme_and_docs(self, tool, tool_dir):
-                  repo = tool['repo']
-                  clone_dir = f"temp_{self.make_safe_name(tool['name'])}"
-                  
-                  try:
-                      subprocess.run([
-                          'git', 'clone', '--depth', '1',
-                          f'https://github.com/{repo}.git', clone_dir
-                      ], check=True, capture_output=True)
-                      
-                      repo_path = Path(clone_dir)
-                      
-                      readme_content = self.get_readme_content(repo_path, repo)
-                      docs_content = self.get_docs_content(repo_path, repo)
-                      
-                      full_content = f"# {tool['name']}\n\n{tool['description']}\n\n"
-                      
-                      if readme_content:
-                          full_content += readme_content
-                      
-                      if docs_content:
-                          full_content += "\n\n## Additional Documentation\n\n" + docs_content
-                      
-                      frontmatter = {
-                          "title": tool['name'],
-                          "description": tool['description']
-                      }
-                      
-                      self.write_markdown_file(tool_dir / "index.md", frontmatter, full_content)
-                      
-                      subprocess.run(['rm', '-rf', clone_dir], check=False)
-                      print(f"  Processed README and docs")
-                      
-                  except Exception as e:
-                      print(f"  Error processing repository: {e}")
-                      if os.path.exists(clone_dir):
-                          subprocess.run(['rm', '-rf', clone_dir], check=False)
-              
-              def get_readme_content(self, repo_path, repo):
-                  readme_files = ['README.md', 'readme.md', 'Readme.md']
-                  
-                  for readme_file in readme_files:
-                      readme_path = repo_path / readme_file
-                      if readme_path.exists():
-                          try:
-                              with open(readme_path, 'r', encoding='utf-8') as f:
-                                  content = f.read()
-                              return self.fix_relative_links(content, repo)
-                          except:
-                              continue
-                  
-                  return ""
-              
-              def get_docs_content(self, repo_path, repo):
-                  docs_path = repo_path / "docs"
-                  if not docs_path.exists():
-                      return ""
-                  
-                  content_parts = []
-                  
-                  for md_file in docs_path.rglob("*.md"):
-                      try:
-                          with open(md_file, 'r', encoding='utf-8') as f:
-                              file_content = f.read()
-                          
-                          section_name = md_file.stem.replace('-', ' ').replace('_', ' ').title()
-                          processed_content = self.fix_relative_links(file_content, repo)
-                          content_parts.append(f"### {section_name}\n\n{processed_content}")
-                          
-                      except:
-                          continue
-                  
-                  return "\n\n".join(content_parts)
-              
-              def fix_relative_links(self, content, repo):
-                  # Fix image links
-                  content = re.sub(
-                      r'!\[([^\]]*)\]\((?!https?)([^)]+)\)',
-                      rf'![\1](https://github.com/{repo}/blob/main/\2)',
-                      content
-                  )
-                  
-                  # Fix relative markdown links
-                  content = re.sub(
-                      r'\[([^\]]+)\]\((?!https?)([^)]+\.md)\)',
-                      rf'[\1](https://github.com/{repo}/blob/main/\2)',
-                      content
-                  )
-                  
-                  return content
-              
-              def write_markdown_file(self, file_path, frontmatter, content):
-                  yaml_content = yaml.dump(frontmatter, default_flow_style=False)
-                  full_content = f"---\n{yaml_content}---\n\n{content}"
-                  
-                  with open(file_path, 'w', encoding='utf-8') as f:
-                      f.write(full_content)
-              
-              def make_safe_name(self, name):
-                  return re.sub(r'[^\w\s-]', '', name).strip().lower().replace(' ', '_')
-          
-          def main():
-              processor = SimpleGitHubProcessor()
-              processor.process_all_tools()
-              print("✅ Processing complete")
-          
-          if __name__ == "__main__":
-              main()
-          EOF
-      
-      - name: Process Documentation
-        run: python simple_processor.py
-      
-      - name: Create Mintlify Config
+      - name: Create Mintlify Configuration
         run: |
           cat > mint.json << 'EOF'
           {
             "$schema": "https://mintlify.com/schema.json",
-            "name": "SpecterOps Tools Documentation",
+            "name": "SharpSCCM Documentation",
+            "logo": {
+              "light": "/logo/light.png",
+              "dark": "/logo/dark.png"
+            },
+            "favicon": "/favicon.ico",
+            "colors": {
+              "primary": "#FF4B4B",
+              "light": "#FF6B6B",
+              "dark": "#E53E3E"
+            },
+            "topbarCtaButton": {
+              "name": "GitHub Repository",
+              "url": "https://github.com/Mayyhem/SharpSCCM"
+            },
             "navigation": [
               {
-                "group": "Core Platforms",
+                "group": "SharpSCCM Documentation",
                 "pages": [
-                  "docs/tools/core-platforms/bloodhound_community_edition/index",
-                  "docs/tools/core-platforms/ghostwriter/index",
-                  "docs/tools/core-platforms/nemesis/index"
-                ]
-              },
-              {
-                "group": "C2 Frameworks",
-                "pages": [
-                  "docs/tools/c2-frameworks/mythic_c2/index"
-                ]
-              },
-              {
-                "group": "Utilities",
-                "pages": [
-                  "docs/tools/utilities/sharpsccm/index",
-                  "docs/tools/utilities/sharphound/index"
+                  "docs/sharpsccm/index",
+                  "docs/sharpsccm/command-line-usage",
+                  "docs/sharpsccm/local",
+                  "docs/sharpsccm/get",
+                  "docs/sharpsccm/invoke",
+                  "docs/sharpsccm/exec"
                 ]
               }
-            ]
+            ],
+            "footerSocials": {
+              "github": "https://github.com/Mayyhem/SharpSCCM"
+            },
+            "search": {
+              "prompt": "Search SharpSCCM documentation..."
+            }
           }
           EOF
+      
+      - name: Show What Was Created
+        run: |
+          echo "📁 Created files:"
+          find docs -name "*.md" | sort
+          echo ""
+          echo "📝 Navigation structure:"
+          if [ -f "docs/sharpsccm/_navigation.json" ]; then
+            cat docs/sharpsccm/_navigation.json
+          fi
       
       - name: Commit Changes
         run: |
@@ -313,6 +88,10 @@ jobs:
           git add docs/ mint.json
           
           if ! git diff --staged --quiet; then
-            git commit -m "Update SpecterOps documentation - $(date '+%Y-%m-%d')"
+            FILES_COUNT=$(find docs -name "*.md" | wc -l)
+            git commit -m "📚 Add SharpSCCM documentation (${FILES_COUNT} pages) - $(date '+%Y-%m-%d %H:%M')"
             git push
+            echo "✅ Changes committed and pushed"
+          else
+            echo "ℹ️  No changes to commit"
           fi
