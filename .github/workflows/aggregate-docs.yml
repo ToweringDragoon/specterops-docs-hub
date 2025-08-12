@@ -47,7 +47,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "Documentation Bot"
           
-          git add docs/ mint.json _processing_results.json
+          git add docs/ mint.json
+          git add _processing_results.json 2>/dev/null || true
           
           if ! git diff --staged --quiet; then
             TOOLS_COUNT=$(python3 -c "
