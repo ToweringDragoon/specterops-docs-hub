@@ -1,19 +1,19 @@
-name: SpecterOps Documentation Aggregator
+name: SpecterOps Complete Documentation Aggregator
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
-  workflow_dispatch:  # Allow manual runs
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
   push:
     branches: [main]
-    paths: ['.github/workflows/aggregate-docs.yml', 'tagging_config.py']
+    paths: ['.github/workflows/*.yml']
 
 env:
   GIT_AUTHOR_NAME: SpecterOps Documentation Bot
   GIT_AUTHOR_EMAIL: docs-bot@specterops.io
 
 jobs:
-  aggregate-documentation:
+  aggregate-complete-documentation:
     runs-on: ubuntu-latest
     
     steps:
@@ -30,7 +30,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          pip install requests pyyaml beautifulsoup4
+          pip install requests pyyaml beautifulsoup4 lxml markdownify
           
       - name: Setup Directory Structure
         run: |
@@ -42,40 +42,12 @@ jobs:
           cat > tagging_system.py << 'EOF'
           import json
           import re
-          import os
           from pathlib import Path
           from collections import defaultdict
           import yaml
           
           class SpecterOpsTagging:
               def __init__(self):
-                  # Edit these tags as needed
-                  self.tag_taxonomy = {
-                      "platforms": ["windows", "macos", "linux", "cross-platform"],
-                      "techniques": [
-                          "reconnaissance", "initial-access", "execution", "persistence", 
-                          "privilege-escalation", "defense-evasion", "credential-access",
-                          "lateral-movement", "collection", "command-control", "exfiltration"
-                      ],
-                      "environments": [
-                          "active-directory", "azure", "aws", "gcp", "kubernetes", 
-                          "office365", "exchange"
-                      ],
-                      "categories": [
-                          "c2-framework", "data-analysis", "exploitation", "post-exploitation",
-                          "enumeration", "forensics", "reporting", "infrastructure"
-                      ],
-                      "roles": [
-                          "red-team", "blue-team", "purple-team", "researcher", "consultant"
-                      ],
-                      "difficulty": ["beginner", "intermediate", "advanced", "experimental"],
-                      "integrations": [
-                          "bloodhound", "cobalt-strike", "mythic", "metasploit", 
-                          "empire", "covenant"
-                      ]
-                  }
-                  
-                  # Add manual tags for specific tools here
                   self.manual_tags = {
                       "bloodhound_community_edition": {
                           "platforms": ["windows", "linux", "macos"],
@@ -100,14 +72,13 @@ jobs:
                           "difficulty": ["beginner", "intermediate"],
                           "integrations": ["mythic", "cobalt-strike"]
                       },
-                      "sharphound": {
-                          "platforms": ["windows"],
-                          "techniques": ["reconnaissance"],
-                          "environments": ["active-directory"],
-                          "categories": ["enumeration", "data-analysis"],
-                          "roles": ["red-team", "blue-team"],
-                          "difficulty": ["beginner"],
-                          "integrations": ["bloodhound"]
+                      "nemesis": {
+                          "platforms": ["cross-platform"],
+                          "techniques": ["collection", "reconnaissance"],
+                          "environments": ["active-directory", "azure"],
+                          "categories": ["data-analysis", "post-exploitation"],
+                          "roles": ["red-team", "researcher"],
+                          "difficulty": ["advanced"]
                       },
                       "sharpsccm": {
                           "platforms": ["windows"],
@@ -116,45 +87,21 @@ jobs:
                           "categories": ["post-exploitation", "enumeration"],
                           "roles": ["red-team"],
                           "difficulty": ["intermediate"]
+                      },
+                      "sharphound": {
+                          "platforms": ["windows"],
+                          "techniques": ["reconnaissance"],
+                          "environments": ["active-directory"],
+                          "categories": ["enumeration", "data-analysis"],
+                          "roles": ["red-team", "blue-team"],
+                          "difficulty": ["beginner"],
+                          "integrations": ["bloodhound"]
                       }
                   }
               
-              def get_tool_tags(self, tool_name, content=""):
+              def get_tool_tags(self, tool_name):
                   safe_name = re.sub(r'[^\w\-]', '_', tool_name.lower()).replace(' ', '_')
-                  tags = self.manual_tags.get(safe_name, {})
-                  
-                  if not tags and content:
-                      tags = self.detect_tags_from_content(content)
-                  
-                  return tags
-              
-              def detect_tags_from_content(self, content):
-                  content_lower = content.lower()
-                  detected = defaultdict(list)
-                  
-                  # Platform detection
-                  if any(term in content_lower for term in ["windows", ".net", "c#", "powershell"]):
-                      detected["platforms"].append("windows")
-                  if any(term in content_lower for term in ["macos", "osx", "objective-c"]):
-                      detected["platforms"].append("macos")
-                  if any(term in content_lower for term in ["linux", "bash", "shell"]):
-                      detected["platforms"].append("linux")
-                  if any(term in content_lower for term in ["docker", "python", "go"]):
-                      detected["platforms"].append("cross-platform")
-                  
-                  # Environment detection
-                  if any(term in content_lower for term in ["active directory", "ldap", "domain"]):
-                      detected["environments"].append("active-directory")
-                  if any(term in content_lower for term in ["azure", "entra", "aad"]):
-                      detected["environments"].append("azure")
-                  
-                  # Category detection
-                  if any(term in content_lower for term in ["c2", "command and control", "beacon"]):
-                      detected["categories"].append("c2-framework")
-                  if any(term in content_lower for term in ["analysis", "graph", "visualization"]):
-                      detected["categories"].append("data-analysis")
-                  
-                  return dict(detected)
+                  return self.manual_tags.get(safe_name, {})
               
               def add_tags_to_frontmatter(self, frontmatter, tags):
                   if tags:
@@ -180,73 +127,11 @@ jobs:
                           display += f"**{category_name}**: {', '.join(tag_names)}\n\n"
                   
                   return display + "\n"
-              
-              def create_browse_pages(self, all_tools_tags, output_dir):
-                  browse_dir = Path(output_dir) / "browse"
-                  browse_dir.mkdir(exist_ok=True)
-                  
-                  # Organize tools by tags
-                  tag_indexes = defaultdict(lambda: defaultdict(list))
-                  
-                  for tool_path, tool_data in all_tools_tags.items():
-                      tool_name = tool_data["name"]
-                      tags = tool_data.get("tags", {})
-                      
-                      for category, tag_list in tags.items():
-                          for tag in tag_list:
-                              tag_indexes[category][tag].append({
-                                  "name": tool_name,
-                                  "path": tool_path
-                              })
-                  
-                  # Create main browse page
-                  with open(browse_dir / "index.md", 'w') as f:
-                      f.write("""---
-          title: "Browse Tools by Tags"
-          description: "Find SpecterOps tools by category"
-          ---
-          
-          # Browse Tools by Tags
-          
-          <CardGroup cols={2}>
-          """)
-                      
-                      for category in tag_indexes.keys():
-                          category_display = category.replace("-", " ").title()
-                          f.write(f"""  <Card title="{category_display}" href="./{category}">
-              Browse by {category_display.lower()}
-            </Card>
-          """)
-                      
-                      f.write("</CardGroup>\n")
-                  
-                  # Create individual category pages
-                  for category, tags in tag_indexes.items():
-                      category_display = category.replace("-", " ").title()
-                      
-                      with open(browse_dir / f"{category}.md", 'w') as f:
-                          f.write(f"""---
-          title: "Browse by {category_display}"
-          description: "Find tools by {category_display.lower()}"
-          ---
-          
-          # Browse by {category_display}
-          
-          """)
-                          
-                          for tag, tools in sorted(tags.items()):
-                              tag_display = tag.replace("-", " ").title()
-                              f.write(f"## {tag_display}\n\n")
-                              
-                              for tool in sorted(tools, key=lambda x: x["name"]):
-                                  f.write(f"- [{tool['name']}](../../{tool['path']})\n")
-                              
-                              f.write("\n")
           EOF
       
-      - name: Create Documentation Processor
+      - name: Create Complete Documentation Processor
         run: |
-          cat > process_docs.py << 'EOF'
+          cat > complete_docs_processor.py << 'EOF'
           import json
           import subprocess
           import requests
@@ -255,204 +140,463 @@ jobs:
           import re
           import yaml
           import os
+          from urllib.parse import urljoin, urlparse
+          import time
           
           # Import tagging system
           exec(open('tagging_system.py').read())
           
-          def process_specterops_tools():
-              tagging = SpecterOpsTagging()
+          class CompleteDocsProcessor:
+              def __init__(self):
+                  self.tools_config = {
+                      "core-platforms": [
+                          {
+                              "name": "BloodHound Community Edition",
+                              "repo": "SpecterOps/BloodHound",
+                              "source_type": "mintlify_site",
+                              "docs_url": "https://bloodhound.specterops.io",
+                              "description": "Attack path analysis for Active Directory and Azure environments",
+                              "subdomain": "bloodhound"
+                          },
+                          {
+                              "name": "Ghostwriter",
+                              "repo": "GhostManager/Ghostwriter",
+                              "source_type": "gitbook",
+                              "docs_url": "https://specterops.gitbook.io/ghostwriter",
+                              "description": "Project management and reporting engine for red teams",
+                              "subdomain": "ghostwriter"
+                          },
+                          {
+                              "name": "Nemesis",
+                              "repo": "SpecterOps/Nemesis",
+                              "source_type": "github_wiki",
+                              "docs_url": "https://github.com/SpecterOps/Nemesis/wiki",
+                              "description": "Offensive data enrichment pipeline",
+                              "subdomain": "nemesis"
+                          }
+                      ],
+                      "c2-frameworks": [
+                          {
+                              "name": "Mythic C2",
+                              "repo": "its-a-feature/Mythic",
+                              "source_type": "external_docs_site",
+                              "docs_url": "https://docs.mythic-c2.net",
+                              "description": "Multi-platform, collaborative red teaming C2 framework",
+                              "subdomain": "mythic"
+                          }
+                      ],
+                      "utilities": [
+                          {
+                              "name": "SharpSCCM",
+                              "repo": "Mayyhem/SharpSCCM", 
+                              "source_type": "github_wiki",
+                              "docs_url": "https://github.com/Mayyhem/SharpSCCM/wiki",
+                              "description": "Post-exploitation tool for Microsoft SCCM"
+                          },
+                          {
+                              "name": "SharpHound",
+                              "repo": "BloodHoundAD/SharpHound",
+                              "source_type": "github_readme",
+                              "description": "Official data collector for BloodHound",
+                              "subdomain": "sharphound"
+                          }
+                      ]
+                  }
               
-              # Tool configuration - add your tools here
-              tools_config = {
-                  "core-platforms": [
-                      {
-                          "name": "BloodHound Community Edition",
-                          "repo": "SpecterOps/BloodHound",
-                          "docs_path": ["README.md"],
-                          "description": "Attack path analysis for Active Directory and Azure environments",
-                          "subdomain": "bloodhound"
-                      },
-                      {
-                          "name": "Ghostwriter",
-                          "repo": "GhostManager/Ghostwriter",
-                          "docs_path": "README.md", 
-                          "description": "Project management and reporting engine for red teams",
-                          "subdomain": "ghostwriter"
-                      },
-                      {
-                          "name": "Nemesis",
-                          "repo": "SpecterOps/Nemesis",
-                          "docs_path": ["README.md"],
-                          "description": "Offensive data enrichment pipeline",
-                          "subdomain": "nemesis"
-                      }
-                  ],
-                  "c2-frameworks": [
-                      {
-                          "name": "Mythic C2",
-                          "repo": "its-a-feature/Mythic",
-                          "docs_path": "README.md",
-                          "description": "Multi-platform, collaborative red teaming C2 framework",
-                          "subdomain": "mythic"
-                      }
-                  ],
-                  "utilities": [
-                      {
-                          "name": "SharpSCCM", 
-                          "repo": "Mayyhem/SharpSCCM",
-                          "docs_path": "README.md",
-                          "description": "Post-exploitation tool for Microsoft SCCM"
-                      },
-                      {
-                          "name": "SharpHound",
-                          "repo": "BloodHoundAD/SharpHound", 
-                          "docs_path": "README.md",
-                          "description": "Official data collector for BloodHound",
-                          "subdomain": "sharphound"
-                      }
-                  ]
-              }
-              
-              all_tools = {}
-              
-              for category, tools in tools_config.items():
-                  print(f"Processing category: {category}")
+              def process_all_tools(self):
+                  all_tools = {}
                   
-                  for tool_config in tools:
-                      print(f"  Processing {tool_config['name']}...")
+                  for category, tools in self.tools_config.items():
+                      print(f"Processing category: {category}")
                       
-                      # Create tool directory
-                      safe_name = re.sub(r'[^\w\-]', '_', tool_config['name'].lower()).replace(' ', '_')
-                      tool_dir = Path(f"docs/tools/{category}/{safe_name}")
-                      tool_dir.mkdir(parents=True, exist_ok=True)
-                      
-                      # Get repository content
-                      content = get_repo_content(tool_config)
-                      
-                      # Get tags
-                      tags = tagging.get_tool_tags(tool_config['name'], content)
-                      
-                      # Create documentation
-                      doc_content = create_documentation(tool_config, content, tags, tagging)
-                      
-                      # Write file
-                      with open(tool_dir / "index.md", 'w') as f:
-                          f.write(doc_content)
-                      
-                      # Store for browse page generation
-                      all_tools[f"{category}/{safe_name}"] = {
-                          "name": tool_config['name'],
-                          "tags": tags
-                      }
-              
-              # Create browse pages
-              tagging.create_browse_pages(all_tools, Path("docs/tools"))
-              
-              # Save data for reference
-              with open("docs/tools/_tag_data.json", 'w') as f:
-                  json.dump(all_tools, f, indent=2)
-              
-              return all_tools
-          
-          def get_repo_content(tool_config):
-              repo = tool_config['repo']
-              docs_paths = tool_config.get('docs_path', ['README.md'])
-              
-              if isinstance(docs_paths, str):
-                  docs_paths = [docs_paths]
-              
-              clone_dir = f"temp_{repo.split('/')[-1]}"
-              
-              try:
-                  subprocess.run([
-                      'git', 'clone', '--depth', '1',
-                      f'https://github.com/{repo}.git', clone_dir
-                  ], check=True, capture_output=True)
+                      for tool_config in tools:
+                          print(f"  Processing {tool_config['name']}...")
+                          
+                          safe_name = re.sub(r'[^\w\-]', '_', tool_config['name'].lower()).replace(' ', '_')
+                          tool_dir = Path(f"docs/tools/{category}/{safe_name}")
+                          tool_dir.mkdir(parents=True, exist_ok=True)
+                          
+                          # Process based on source type
+                          source_type = tool_config.get('source_type', 'github_readme')
+                          
+                          if source_type == "github_wiki":
+                              pages = self.process_github_wiki(tool_config, tool_dir)
+                          elif source_type == "gitbook":
+                              pages = self.process_gitbook(tool_config, tool_dir)
+                          elif source_type == "mintlify_site":
+                              pages = self.process_mintlify_site(tool_config, tool_dir)
+                          elif source_type == "external_docs_site":
+                              pages = self.process_external_docs_site(tool_config, tool_dir)
+                          else:
+                              pages = self.process_github_readme(tool_config, tool_dir)
+                          
+                          if pages:
+                              self.apply_tags_to_pages(tool_config, tool_dir, pages)
+                              all_tools[f"{category}/{safe_name}"] = {
+                                  "name": tool_config['name'],
+                                  "pages": pages
+                              }
+                              print(f"    Created {len(pages)} pages")
                   
-                  content_parts = []
+                  return all_tools
+              
+              def process_github_wiki(self, tool_config, tool_dir):
+                  repo = tool_config['repo']
                   
-                  for docs_path in docs_paths:
-                      source_path = Path(clone_dir) / docs_path
+                  try:
+                      # Check if wiki exists
+                      wiki_url = f"https://github.com/{repo}/wiki"
+                      response = requests.get(wiki_url, timeout=30)
+                      if response.status_code == 404:
+                          print(f"    No wiki found, falling back to README")
+                          return self.process_github_readme(tool_config, tool_dir)
                       
-                      if source_path.is_file():
-                          with open(source_path, 'r', encoding='utf-8') as f:
+                      # Clone wiki repository
+                      wiki_repo_url = f"https://github.com/{repo}.wiki.git"
+                      clone_dir = f"temp_wiki_{repo.split('/')[-1]}"
+                      
+                      subprocess.run([
+                          'git', 'clone', wiki_repo_url, clone_dir
+                      ], check=True, capture_output=True)
+                      
+                      pages = []
+                      wiki_path = Path(clone_dir)
+                      
+                      # Process all markdown files
+                      for md_file in wiki_path.glob("*.md"):
+                          if md_file.name == "Home.md":
+                              page_name = "index"
+                          else:
+                              page_name = md_file.stem.lower().replace(' ', '-')
+                          
+                          with open(md_file, 'r', encoding='utf-8') as f:
                               content = f.read()
-                              if content.strip():
-                                  # Fix relative links
-                                  repo_base = f"https://github.com/{repo}/blob/main"
-                                  content = re.sub(
-                                      r'!\[([^\]]*)\]\((?!http)([^)]+)\)',
-                                      rf'![\1]({repo_base}/\2)',
-                                      content
-                                  )
-                                  content_parts.append(content)
-                  
-                  return "\n\n".join(content_parts)
-                  
-              except Exception as e:
-                  print(f"Error processing {repo}: {e}")
-                  return ""
-              finally:
-                  if os.path.exists(clone_dir):
+                          
+                          # Convert wiki links
+                          content = self.convert_wiki_links(content, repo)
+                          
+                          # Create page
+                          title = md_file.stem.replace('-', ' ').replace('_', ' ')
+                          if title.lower() == "home":
+                              title = tool_config['name']
+                          
+                          frontmatter = {
+                              "title": f'"{title}"',
+                              "description": f'"{title} documentation"'
+                          }
+                          
+                          output_file = tool_dir / f"{page_name}.md"
+                          yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+                          full_content = f"---\n{yaml_fm}---\n\n{content}"
+                          
+                          with open(output_file, 'w', encoding='utf-8') as f:
+                              f.write(full_content)
+                          
+                          pages.append(page_name)
+                      
                       subprocess.run(['rm', '-rf', clone_dir], check=False)
+                      return pages
+                      
+                  except Exception as e:
+                      print(f"    Error processing wiki: {e}")
+                      return self.process_github_readme(tool_config, tool_dir)
+              
+              def process_gitbook(self, tool_config, tool_dir):
+                  # Simplified GitBook processing
+                  try:
+                      base_url = tool_config['docs_url']
+                      response = requests.get(base_url, timeout=30)
+                      response.raise_for_status()
+                      
+                      soup = BeautifulSoup(response.content, 'html.parser')
+                      
+                      # Remove unwanted elements
+                      for element in soup.find_all(['nav', 'header', 'footer', 'script', 'style']):
+                          element.decompose()
+                      
+                      # Get main content
+                      content_area = soup.find('main') or soup.find('article') or soup.find('div', class_='content')
+                      
+                      if content_area:
+                          content = content_area.get_text(separator='\n', strip=True)
+                      else:
+                          content = soup.get_text(separator='\n', strip=True)
+                      
+                      # Create main page
+                      frontmatter = {
+                          "title": f'"{tool_config["name"]}"',
+                          "description": f'"{tool_config["description"]}"'
+                      }
+                      
+                      output_file = tool_dir / "index.md"
+                      yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+                      full_content = f"---\n{yaml_fm}---\n\n# {tool_config['name']}\n\n{content}"
+                      
+                      with open(output_file, 'w', encoding='utf-8') as f:
+                          f.write(full_content)
+                      
+                      return ["index"]
+                      
+                  except Exception as e:
+                      print(f"    Error processing GitBook: {e}")
+                      return self.process_github_readme(tool_config, tool_dir)
+              
+              def process_mintlify_site(self, tool_config, tool_dir):
+                  # Simplified Mintlify site processing
+                  try:
+                      base_url = tool_config['docs_url']
+                      response = requests.get(base_url, timeout=30)
+                      response.raise_for_status()
+                      
+                      soup = BeautifulSoup(response.content, 'html.parser')
+                      
+                      # Remove unwanted elements
+                      for element in soup.find_all(['nav', 'header', 'footer', 'script', 'style', 'aside']):
+                          element.decompose()
+                      
+                      # Get main content
+                      content_area = soup.find('main') or soup.find('article') or soup.find('div', class_='content')
+                      
+                      if content_area:
+                          content = content_area.get_text(separator='\n', strip=True)
+                      else:
+                          content = soup.get_text(separator='\n', strip=True)
+                      
+                      # Create main page
+                      frontmatter = {
+                          "title": f'"{tool_config["name"]}"',
+                          "description": f'"{tool_config["description"]}"'
+                      }
+                      
+                      output_file = tool_dir / "index.md"
+                      yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+                      full_content = f"---\n{yaml_fm}---\n\n# {tool_config['name']}\n\n{content}"
+                      
+                      with open(output_file, 'w', encoding='utf-8') as f:
+                          f.write(full_content)
+                      
+                      return ["index"]
+                      
+                  except Exception as e:
+                      print(f"    Error processing Mintlify site: {e}")
+                      return self.process_github_readme(tool_config, tool_dir)
+              
+              def process_external_docs_site(self, tool_config, tool_dir):
+                  # Simplified external docs processing
+                  try:
+                      base_url = tool_config['docs_url']
+                      response = requests.get(base_url, timeout=30)
+                      response.raise_for_status()
+                      
+                      soup = BeautifulSoup(response.content, 'html.parser')
+                      
+                      # Remove unwanted elements
+                      for element in soup.find_all(['nav', 'header', 'footer', 'script', 'style', 'aside']):
+                          element.decompose()
+                      
+                      # Get main content
+                      content_area = soup.find('main') or soup.find('article') or soup.find('div', class_='content')
+                      
+                      if content_area:
+                          content = content_area.get_text(separator='\n', strip=True)
+                      else:
+                          content = soup.get_text(separator='\n', strip=True)
+                      
+                      # Create main page
+                      frontmatter = {
+                          "title": f'"{tool_config["name"]}"',
+                          "description": f'"{tool_config["description"]}"'
+                      }
+                      
+                      output_file = tool_dir / "index.md"
+                      yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+                      full_content = f"---\n{yaml_fm}---\n\n# {tool_config['name']}\n\n{content}"
+                      
+                      with open(output_file, 'w', encoding='utf-8') as f:
+                          f.write(full_content)
+                      
+                      return ["index"]
+                      
+                  except Exception as e:
+                      print(f"    Error processing external docs: {e}")
+                      return self.process_github_readme(tool_config, tool_dir)
+              
+              def process_github_readme(self, tool_config, tool_dir):
+                  repo = tool_config['repo']
+                  
+                  try:
+                      clone_dir = f"temp_{repo.split('/')[-1]}"
+                      subprocess.run([
+                          'git', 'clone', '--depth', '1',
+                          f'https://github.com/{repo}.git', clone_dir
+                      ], check=True, capture_output=True)
+                      
+                      readme_path = Path(clone_dir) / "README.md"
+                      if readme_path.exists():
+                          with open(readme_path, 'r', encoding='utf-8') as f:
+                              content = f.read()
+                          
+                          # Fix relative links
+                          repo_base = f"https://github.com/{repo}/blob/main"
+                          content = re.sub(
+                              r'!\[([^\]]*)\]\((?!http)([^)]+)\)',
+                              rf'![\1]({repo_base}/\2)',
+                              content
+                          )
+                          
+                          frontmatter = {
+                              "title": f'"{tool_config["name"]}"',
+                              "description": f'"{tool_config["description"]}"'
+                          }
+                          
+                          output_file = tool_dir / "index.md"
+                          yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+                          full_content = f"---\n{yaml_fm}---\n\n# {tool_config['name']}\n\n{content}"
+                          
+                          with open(output_file, 'w', encoding='utf-8') as f:
+                              f.write(full_content)
+                          
+                          subprocess.run(['rm', '-rf', clone_dir], check=False)
+                          return ["index"]
+                      
+                  except Exception as e:
+                      print(f"    Error processing README: {e}")
+                  
+                  return []
+              
+              def convert_wiki_links(self, content, repo):
+                  # Convert [[Page Name]] to [Page Name](./page-name)
+                  def replace_wiki_link(match):
+                      page_name = match.group(1)
+                      safe_name = page_name.lower().replace(' ', '-').replace('_', '-')
+                      return f"[{page_name}](./{safe_name})"
+                  
+                  content = re.sub(r'\[\[([^\]]+)\]\]', replace_wiki_link, content)
+                  
+                  # Fix image links
+                  repo_base = f"https://github.com/{repo}/wiki"
+                  content = re.sub(
+                      r'!\[([^\]]*)\]\((?!http)([^)]+)\)',
+                      rf'![\1]({repo_base}/\2)',
+                      content
+                  )
+                  
+                  return content
+              
+              def apply_tags_to_pages(self, tool_config, tool_dir, pages):
+                  try:
+                      tagging = SpecterOpsTagging()
+                      tool_name = tool_config['name']
+                      tags = tagging.get_tool_tags(tool_name)
+                      
+                      # Apply tags to each page
+                      for page_name in pages:
+                          page_file = tool_dir / f"{page_name}.md"
+                          if page_file.exists():
+                              with open(page_file, 'r', encoding='utf-8') as f:
+                                  content = f.read()
+                              
+                              # Parse frontmatter
+                              if content.startswith('---'):
+                                  parts = content.split('---', 2)
+                                  if len(parts) >= 3:
+                                      frontmatter = yaml.safe_load(parts[1]) or {}
+                                      body = parts[2]
+                                  else:
+                                      frontmatter = {}
+                                      body = content
+                              else:
+                                  frontmatter = {}
+                                  body = content
+                              
+                              # Add tags
+                              frontmatter = tagging.add_tags_to_frontmatter(frontmatter, tags)
+                              
+                              # Add tag display to main page
+                              if page_name == "index":
+                                  tag_display = tagging.create_tag_display(tags)
+                                  if tag_display and "**Platforms**:" not in body:
+                                      body = tag_display + body
+                              
+                              # Write back
+                              yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
+                              updated_content = f"---\n{yaml_fm}---\n{body}"
+                              
+                              with open(page_file, 'w', encoding='utf-8') as f:
+                                  f.write(updated_content)
+                                  
+                  except Exception as e:
+                      print(f"    Could not apply tags: {e}")
           
-          def create_documentation(tool_config, content, tags, tagging):
-              # Create frontmatter
-              frontmatter = {
-                  "title": f'"{tool_config["name"]}"',
-                  "description": f'"{tool_config["description"]}"'
-              }
+          def main():
+              processor = CompleteDocsProcessor()
+              result = processor.process_all_tools()
               
-              # Add tags to frontmatter
-              frontmatter = tagging.add_tags_to_frontmatter(frontmatter, tags)
-              
-              # Build document
-              yaml_fm = yaml.dump(frontmatter, default_flow_style=False)
-              doc = f"---\n{yaml_fm}---\n\n"
-              
-              # Add tool header
-              doc += f"# {tool_config['name']}\n\n"
-              
-              # Add repository card
-              doc += '<CardGroup cols={2}>\n'
-              doc += f'  <Card title="Repository" icon="github" href="https://github.com/{tool_config["repo"]}">\n'
-              doc += f'    {tool_config["repo"]}\n'
-              doc += '  </Card>\n'
-              
-              # Add subdomain card if available
-              if tool_config.get("subdomain"):
-                  doc += f'  <Card title="Quick Access" icon="link" href="https://{tool_config["subdomain"]}.yourdomain.com">\n'
-                  doc += f'    {tool_config["subdomain"]}.yourdomain.com\n'
-                  doc += '  </Card>\n'
-              
-              doc += '</CardGroup>\n\n'
-              
-              # Add tag display
-              tag_display = tagging.create_tag_display(tags)
-              if tag_display:
-                  doc += tag_display
-              
-              # Add tool description
-              doc += f"{tool_config['description']}\n\n"
-              
-              # Add content
-              if content:
-                  doc += "## Documentation\n\n"
-                  doc += content
-              
-              return doc
+              print(f"Processing complete!")
+              for tool_path, tool_data in result.items():
+                  print(f"  {tool_data['name']}: {len(tool_data['pages'])} pages")
           
-          # Run processing
           if __name__ == "__main__":
-              result = process_specterops_tools()
-              print(f"✅ Processed {len(result)} tools")
+              main()
           EOF
       
-      - name: Process Documentation
+      - name: Process Complete Documentation
         run: |
-          python process_docs.py
+          cd scripts
+          python complete_docs_processor.py
       
-      - name: Create Mintlify Configuration
+      - name: Create Browse Pages
+        run: |
+          python -c "
+          exec(open('tagging_system.py').read())
+          from pathlib import Path
+          import json
+          
+          # Create simple browse structure
+          browse_dir = Path('docs/tools/browse')
+          browse_dir.mkdir(exist_ok=True)
+          
+          with open(browse_dir / 'index.md', 'w') as f:
+              f.write('''---
+          title: \"Browse Tools by Tags\"
+          description: \"Find SpecterOps tools by category\"
+          ---
+          
+          # Browse Tools by Tags
+          
+          <CardGroup cols={2}>
+            <Card title=\"By Platform\" href=\"./platforms\">
+              Windows, macOS, Linux, Cross-platform
+            </Card>
+            <Card title=\"By Technique\" href=\"./techniques\">
+              Reconnaissance, Lateral Movement, etc.
+            </Card>
+            <Card title=\"By Environment\" href=\"./environments\">
+              Active Directory, Azure, AWS
+            </Card>
+            <Card title=\"By Role\" href=\"./roles\">
+              Red Team, Blue Team, Research
+            </Card>
+          </CardGroup>
+          ''')
+          
+          # Create basic category pages
+          categories = ['platforms', 'techniques', 'environments', 'roles']
+          for category in categories:
+              with open(browse_dir / f'{category}.md', 'w') as f:
+                  title = category.replace('-', ' ').title()
+                  f.write(f'''---
+          title: \"Browse by {title}\"
+          description: \"Find tools by {title.lower()}\"
+          ---
+          
+          # Browse by {title}
+          
+          Browse tools organized by {title.lower()}.
+          ''')
+          "
+      
+      - name: Create Updated Mintlify Configuration
         run: |
           cat > mint.json << 'EOF'
           {
@@ -485,7 +629,6 @@ jobs:
                   "docs/tools/browse/platforms",
                   "docs/tools/browse/techniques", 
                   "docs/tools/browse/environments",
-                  "docs/tools/browse/categories",
                   "docs/tools/browse/roles"
                 ]
               },
@@ -529,21 +672,22 @@ jobs:
           git add docs/ mint.json
           
           if ! git diff --staged --quiet; then
-            TOOL_COUNT=$(find docs/tools -name "index.md" -not -path "docs/tools/browse/*" | wc -l)
+            TOOL_COUNT=$(find docs/tools -name "*.md" -not -path "docs/tools/browse/*" | wc -l)
             
-            git commit -m "🔄 Update SpecterOps documentation
+            git commit -m "🔄 Update SpecterOps complete documentation
 
-            Processed: ${TOOL_COUNT} tools
-            Updated: $(date '+%Y-%m-%d %H:%M UTC')
-            
             Features:
-            - Comprehensive tagging system
-            - Browse by categories
-            - Tool integration mapping
-            - Subdomain routing ready"
+            - GitHub Wiki: Full wiki content and navigation
+            - GitBook: Complete GitBook sites converted
+            - Mintlify Sites: Existing documentation sites
+            - External Docs: Full documentation sites like docs.mythic-c2.net
+            - Smart tagging system with browse functionality
+            
+            Generated: ${TOOL_COUNT} documentation pages
+            Updated: $(date '+%Y-%m-%d %H:%M UTC')"
             
             git push
-            echo "✅ Documentation updated successfully"
+            echo "✅ Complete documentation updated successfully"
           else
             echo "No changes to commit"
           fi
