@@ -271,7 +271,7 @@ jobs:
           EOF
       
       - name: Process Documentation
-        run: python compl_processor.py
+        run: python simple_processor.py
       
       - name: Create Mintlify Config
         run: |
