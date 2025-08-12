@@ -6,25 +6,16 @@ description: "Find SpecterOps tools by category"
 # Browse Tools by Tags
 
 <CardGroup cols={2}>
-  <Card title="Platforms" href="./platforms">
-    Browse by platforms
+  <Card title="By Platform" href="./platforms">
+    Windows, macOS, Linux, Cross-platform
   </Card>
-  <Card title="Techniques" href="./techniques">
-    Browse by techniques
+  <Card title="By Technique" href="./techniques">
+    Reconnaissance, Lateral Movement, etc.
   </Card>
-  <Card title="Environments" href="./environments">
-    Browse by environments
+  <Card title="By Environment" href="./environments">
+    Active Directory, Azure, AWS
   </Card>
-  <Card title="Categories" href="./categories">
-    Browse by categories
-  </Card>
-  <Card title="Roles" href="./roles">
-    Browse by roles
-  </Card>
-  <Card title="Difficulty" href="./difficulty">
-    Browse by difficulty
-  </Card>
-  <Card title="Integrations" href="./integrations">
-    Browse by integrations
+  <Card title="By Role" href="./roles">
+    Red Team, Blue Team, Research
   </Card>
 </CardGroup>
