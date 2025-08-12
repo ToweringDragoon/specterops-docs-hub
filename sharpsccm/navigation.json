@@ -1,0 +1,26 @@
+{
+  "name": "SharpSCCM",
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "sharpsccm/index"
+      ]
+    },
+    {
+      "group": "Documentation",
+      "pages": [
+        "sharpsccm/home/_history",
+        "sharpsccm/build-instructions",
+        "sharpsccm/command-line-usage",
+        "sharpsccm/deob",
+        "sharpsccm/exec",
+        "sharpsccm/get",
+        "sharpsccm/invoke",
+        "sharpsccm/local",
+        "sharpsccm/new",
+        "sharpsccm/remove"
+      ]
+    }
+  ]
+}
