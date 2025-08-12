@@ -15,55 +15,95 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-      - name: Install sync tools
+      - name: Create directories
         run: |
-          npm install -g @mintlify/scraping
-          pip install requests beautifulsoup4 markdown
+          mkdir -p scripts bloodhound mythic sharpsccm tools
+          touch bloodhound/.gitkeep mythic/.gitkeep sharpsccm/.gitkeep
+
+      - name: Install Node.js dependencies
+        run: |
+          npm install --no-package-lock
+          npm install -g @mintlify/scraping@latest
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 markdown lxml Pygments
+
+      - name: Make scripts executable
+        run: |
+          chmod +x scripts/*.js 2>/dev/null || true
+          chmod +x scripts/*.py 2>/dev/null || true
 
       - name: Sync BloodHound docs
         run: |
           node scripts/sync-bloodhound.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
       - name: Sync Mythic docs
         run: |
           node scripts/sync-mythic.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
       - name: Sync SharpSCCM wiki
         run: |
           python scripts/sync-sharpsccm.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
       - name: Update navigation
         run: |
           node scripts/update-navigation.js
+        continue-on-error: true
+
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit changes
+        if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          if ! git diff --staged --quiet; then
-            git commit -m "Sync documentation from upstream repos"
-            git push
-          fi
+          git commit -m "Sync documentation from upstream repos [skip ci]"
+          git push
 
       - name: Deploy to Mintlify
+        if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
-          npx mintlify deploy
+          npx mintlify@latest deploy --push
         env:
           MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}
+        continue-on-error: true
+
+      - name: Summary
+        run: |
+          echo "## Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- BloodHound: $([ -d bloodhound ] && find bloodhound -name '*.md*' | wc -l || echo '0') files" >> $GITHUB_STEP_SUMMARY
+          echo "- Mythic: $([ -d mythic ] && find mythic -name '*.md*' | wc -l || echo '0') files" >> $GITHUB_STEP_SUMMARY  
+          echo "- SharpSCCM: $([ -d sharpsccm ] && find sharpsccm -name '*.md*' | wc -l || echo '0') files" >> $GITHUB_STEP_SUMMARY
+          echo "- Changes: ${{ steps.verify-changed-files.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
