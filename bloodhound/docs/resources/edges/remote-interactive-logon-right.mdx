@@ -7,18 +7,21 @@ description: From Principal to Computer. Principal has the SeRemoteInteractiveLo
 
 For RDP access the principal also needs membership in the computer's local Remote Desktop Users group, which related to the edge [MemberOfLocalGroup](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of-local-group). When RDP access is possible, the principal will have the edge [CanRDP](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/can-rdp).
 
-Abuse Info
-----------
+## Abuse Info
 
 This edge alone does not enable abuse.
 
-Opsec Considerations
---------------------
+## Opsec Considerations
 
 No opsec considerations apply to this edge.
 
-References
-----------
+## Edge Schema
+
+Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)   
+Destination: [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)  
+Traversable: **No**  
+
+## References
 
 * [https://blog.cptjesus.com/posts/userrightsassignment/](https://blog.cptjesus.com/posts/userrightsassignment/)
 * [https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/user-rights-assignment](https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/user-rights-assignment)

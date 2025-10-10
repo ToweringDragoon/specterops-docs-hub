@@ -11,9 +11,16 @@ Permissions on the parent of a child object may enable compromise of the child o
 
 See the inbound edges on the parent object for details.
 
-```
+
 ## Opsec Considerations
 Creation and modification of ACEs will be logged depending on the auditing setup on Domain Controllers.
+
+## Edge Schema
+
+Source: [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [Container](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/container)  
+Destination: [AIACA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/aiaca), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [IssuancePolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/issuance-policy), [NTAuthStore](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/nt-auth-store), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [RootCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/root-ca), [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user)  
+Traversable: **Yes**  
+
 ## References
 * [https://wald0.com/?p=179](https://wald0.com/?p=179)
 * [https://blog.cptjesus.com/posts/bloodhound15](https://blog.cptjesus.com/posts/bloodhound15)

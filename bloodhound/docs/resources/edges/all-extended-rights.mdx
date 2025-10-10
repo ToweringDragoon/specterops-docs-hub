@@ -45,6 +45,12 @@ certipy req -u USER@CORP.LOCAL -p PWD -ca CA-NAME -target SERVER -template TEMPL
 
 This will depend on the actual attack performed. See the particular opsec considerations sections for the ForceChangePassword, AddMembers, and GenericAll edges for more info
 
+## Edge Schema
+
+Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)  
+Destination: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Domain](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/domain), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template)  
+Traversable: **Yes**  
+
 ## References
 
 * [https://www.youtube.com/watch?v=z8thoG7gPd0](https://www.youtube.com/watch?v=z8thoG7gPd0)

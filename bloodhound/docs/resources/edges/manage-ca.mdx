@@ -129,6 +129,12 @@ Techniques to coerce & relay or achieve RCE via CDP manipulation are described h
 
 Abusing these capabilities commonly results in certificate issuance; issued certificates (and sometimes pending requests) leave artifacts on the CA host. Enabling/disabling flags or publishing templates may generate observable administrative events and typically requires a CA service restart for certain changes (ESC6, ESC11, ESC16) to take effect.
 
+## Edge Schema
+
+Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)   
+Destination: [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca)   
+Traversable: **Yes**  
+
 ## References
 
 This edge is related to the following MITRE ATT&CK tactic and techniques:

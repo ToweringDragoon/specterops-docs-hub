@@ -127,6 +127,12 @@ With GenericAll permission over an issuance policy object, you create a OID grou
 
 This will depend on the actual attack performed. See the particular opsec considerations sections for the ForceChangePassword, AddMembers, and GenericAll edges for more info.
 
+## Edge Schema
+
+Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)  
+Destination: [AIACA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/aiaca), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [Container](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/container), [Domain](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/domain), [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca), [GPO](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/gpo), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [IssuancePolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/issuance-policy), [NTAuthStore](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/nt-auth-store), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [RootCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/root-ca), [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user)  
+Traversable: **Yes**  
+
 ## References
 * [https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1](https://github.com/PowerShellMafia/PowerSploit/blob/dev/Recon/PowerView.ps1)
 * [https://www.youtube.com/watch?v=z8thoG7gPd0](https://www.youtube.com/watch?v=z8thoG7gPd0)
