@@ -243,6 +243,95 @@ See Neo4j [Naming and Conventions](https://neo4j.com/docs/cypher-manual/current/
 }
 ```
 
+### Post-processing
+
+Post-processing in BloodHound refers to the analysis phase where the system creates certain edges after ingesting data to identify attack paths.
+
+After ingesting data, BloodHound analyzes the graph state and adds edges it considers useful. BloodHound regenerates "post-processed" edges after it builds a complete graph. Before regenerating post-processed edges, BloodHound deletes any existing ones. As a result, BloodHound removes any post-processed edges that you add directly to an OpenGraph payload.
+
+<Accordion title="Show post-processed edges">
+BloodHound creates the following edges during post-processing:
+
+- [`ADCSESC1`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc1)
+- [`ADCSESC3`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc3)
+- [`ADCSESC4`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc4)
+- [`ADCSESC6a`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc6a)
+- [`ADCSESC6b`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc6b)
+- [`ADCSESC9a`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc9a)
+- [`ADCSESC9b`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc9b)
+- [`ADCSESC10a`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc10a)
+- [`ADCSESC10b`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc10b)
+- [`ADCSESC13`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc13)
+- [`AddMember`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-member)
+- [`AdminTo`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/admin-to)
+- [`AZAddOwner`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-add-owner)
+- [`AZMGAddMember`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-add-member)
+- [`AZMGAddOwner`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-add-owner)
+- [`AZMGAddSecret`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-add-secret)
+- [`AZMGGrantAppRoles`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-grant-app-roles)
+- [`AZMGGrantRole`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-grant-role)
+- [`AZRoleApprover`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-role-approver)
+- [`CanPSRemote`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/can-ps-remote)
+- [`CanRDP`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/can-rdp)
+- [`CoerceAndRelayNTLMToADCS`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-adcs)
+- [`CoerceAndRelayNTLMToLDAP`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-ldap)
+- [`CoerceAndRelayNTLMToLDAPS`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-ldaps)
+- [`CoerceAndRelayNTLMToSMB`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-smb)
+- [`DCSync`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/dc-sync)
+- [`EnrollOnBehalfOf`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/enroll-on-behalf-of)
+- [`EnterpriseCAFor`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/enterprise-ca-for)
+- [`ExecuteDCOM`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/execute-dcom)
+- [`ExtendedByPolicy`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/extended-by-policy)
+- [`GoldenCert`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/golden-cert)
+- [`HasTrustKeys`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-trust-keys)
+- [`IssuedSignedBy`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/issued-signed-by)
+- [`Owns`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns)
+- [`ProtectAdminGroups`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/protect-admin-groups)
+- [`SyncLAPSPassword`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sync-laps-password)
+- [`SyncedToADUser`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-ad-user)
+- [`SyncedToEntraUser`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-entra-user)
+- [`TrustedForNTAuth`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/trusted-for-nt-auth)
+- [`WriteOwner`](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner)
+
+</Accordion>
+
+You can work around this behavior by including the supporting edges that cause the post-processing step to generate the edge that you want.
+
+For example, if you include an `AdminTo` edge directly in your OpenGraph payload, BloodHound removes it during post-processing and the edge does not persist in the final graph as expected. Instead of adding `AdminTo` edges directly, include the supporting edges that cause the post-processor to generate the `AdminTo` edge. The common pattern that triggers the creation of the `AdminTo` edge is:
+
+```mermaid
+graph LR
+  Entity -->|MemberOfLocalGroup| LocalGroup -->|LocalToComputer| Computer
+```
+
+See the following example OpenGraph payload that produces the effect:
+
+```json
+{
+    "graph": {
+        "nodes": [
+            {
+                "id": "TESTNODE",
+                "kinds": ["User"]
+            }
+        ],
+        "edges": [
+            {
+                "start": {
+                    "match_by": "id",
+                    "value": "TESTNODE"
+                },
+                "end": {
+                    "match_by": "id",
+                    "value": "S-1-5-21-2697957641-2271029196-387917394-2171-544"
+                },
+                "kind": "MemberOfLocalGroup"
+            }
+        ]
+    }
+}
+```
+
 ## Optional Metadata Field
 
 You can optionally include a metadata object at the top level of your JSON payload. This metadata currently supports a single field:
