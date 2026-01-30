@@ -1,0 +1,17 @@
+---
+title: WriteOwnerRaw
+description: "This edge is established from the principal that can change the owner of an object to the owned object. This edge is processed further to determine whether implicit owner rights (e.g., WriteDacl) are blocked, which may prevent the owner from compromising the destination object."
+---
+
+<img noZoom src="/assets/enterprise-AND-community-edition-pill-tag.svg" alt="Applies to BloodHound Enterprise and CE"/>
+
+## Edge Schema
+
+Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)   
+Destination: [AIACA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/aiaca), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [Container](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/container), [Domain](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/domain), [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [GPO](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/gpo), [IssuancePolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/issuance-policy), [NTAuthStore](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/nt-auth-store), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [RootCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/root-ca), [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user)  
+Traversable: **No**  
+
+## References
+
+* [SpecterOps: Do You Own Your Permissions, or Do Your Permissions Own You?](https://specterops.io/blog/2025/03/26/do-you-own-your-permissions-or-do-your-permissions-own-you/)
+* [Whitepaper: Owner or Pwnd?](https://adminsdholder.com/2025/02/21/UpdatedOwnerOrPwned.html)

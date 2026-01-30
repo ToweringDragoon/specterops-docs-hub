@@ -25,42 +25,43 @@ These are the traversable AD edge types in BloodHound:
 
 |                         |                          |                             |
 | ----------------------- | ------------------------ | --------------------------- |
-| AbuseTGTDelegation      | ADCSESC1                 | ADCSESC10a                  |
-| ADCSESC10b              | ADCSESC13                | ADCSESC3                    |
-| ADCSESC4                | ADCSESC6a                | ADCSESC6b                   |
-| ADCSESC9a               | ADCSESC9b                | AddAllowedToAct             |
-| AddKeyCredentialLink    | AddMember                | AddSelf                     |
-| AdminTo                 | AllExtendedRights        | AllowedToAct                |
-| AllowedToDelegate       | CanPSRemote              | CanRDP                      |
-| CoerceAndRelayNTLMToADCS| CoerceAndRelayNTLMToLDAP | CoerceAndRelayNTLMToLDAPS   |
-| CoerceAndRelayNTLMToSMB | CoerceToTGT              | DCFor                       |
-| DCSync                  | DumpSMSAPassword         | ExecuteDCOM                 |
-| ForceChangePassword     | GenericAll               | GenericWrite                |
-| GoldenCert              | HasSIDHistory            | HasSession                  |
-| HasTrustKeys            | MemberOf                 | Owns                        |
-| OwnsLimitedRights       | ReadGMSAPassword         | ReadLAPSPassword            |
-| SameForestTrust         | SpoofSIDHistory          | SQLAdmin                    |
-| SyncedToEntraUser       | SyncLAPSPassword         | WriteAccountRestrictions    |
-| WriteDacl               | WriteGPLink              | WriteOwner                  |
-| WriteOwnerLimitedRights | WriteSPN                 |                             |
+| [AbuseTGTDelegation](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/abuse-tgt-delegation)      | [ADCSESC1](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc1)                 | [ADCSESC10a](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc10a)                  |
+| [ADCSESC10b](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc10b)              | [ADCSESC13](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc13)                | [ADCSESC3](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc3)                    |
+| [ADCSESC4](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc4)                | [ADCSESC6a](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc6a)                | [ADCSESC6b](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc6b)                   |
+| [ADCSESC9a](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc9a)               | [ADCSESC9b](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc9b)                | [AddAllowedToAct](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-allowed-to-act)             |
+| [AddKeyCredentialLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-key-credential-link)    | [AddMember](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-member)                | [AddSelf](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-self)                     |
+| [AdminTo](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/admin-to)                 | [AllExtendedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/all-extended-rights)        | [AllowedToAct](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/allowed-to-act)                |
+| [AllowedToDelegate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/allowed-to-delegate)       | [CanPSRemote](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/can-ps-remote)              | [CanRDP](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/can-rdp)                      |
+| [ClaimSpecialIdentity](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/claim-special-identity)    | [CoerceAndRelayNTLMToADCS](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-adcs) | [CoerceAndRelayNTLMToLDAP](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-ldap)    |
+| [CoerceAndRelayNTLMToLDAPS](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-ldaps)| [CoerceAndRelayNTLMToSMB](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-and-relay-ntlm-to-smb) | [CoerceToTGT](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/coerce-to-tgt)                 |
+| [Contains](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/contains)                | [CrossForestTrust](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/cross-forest-trust)         | [DCFor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/dc-for)                       |
+| [DCSync](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/dc-sync)                  | [DumpSMSAPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/dump-smsa-password)         | [ExecuteDCOM](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/execute-dcom)                 |
+| [ForceChangePassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/force-change-password)     | [GenericAll](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/generic-all)               | [GenericWrite](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/generic-write)                |
+| [GoldenCert](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/golden-cert)              | [GPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/gp-link)                   | [HasSIDHistory](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-sid-history)               |
+| [HasSession](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-session)              | [HasTrustKeys](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-trust-keys)             | [ManageCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/manage-ca)                  |
+| [ManageCertificates](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/manage-certificates)      | [MemberOf](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of)                | [Owns](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns)                        |
+| [OwnsLimitedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns-limited-rights)       | [ReadGMSAPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/read-gmsa-password)         | [ReadLAPSPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/read-laps-password)            |
+| [SameForestTrust](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/same-forest-trust)         | [SpoofSIDHistory](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/spoof-sid-history)          | [SQLAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sql-admin)                   |
+| [SyncedToADUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-ad-user)          | [SyncedToEntraUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-entra-user)        | [SyncLAPSPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sync-laps-password)            |
+| [WriteAccountRestrictions](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-account-restrictions)| [WriteDacl](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-dacl)                | [WriteGPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-gp-link)                 |
+| [WriteOwner](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner)              | [WriteOwnerLimitedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner-limited-rights) | [WriteSPN](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-spn)                    |
 
 These are the traversable Azure edge types in BloodHound:
 
 |                         |                         |                           |
 | ----------------------- | ----------------------- | ------------------------- |
-| AZAKSContributor        | AZGetSecrets            | AZNodeResourceGroup       |
-| AZAddMembers            | AZGlobalAdmin           | AZOwner                   |
-| AZAddOwner              | AZHasRole               | AZOwns                    |
-| AZAddSecret             | AZKeyVaultKVContributor | AZPrivilegedAuthAdmin     |
-| AZAppAdmin              | AZLogicAppContributor   | AZPrivilegedRoleAdmin     |
-| AZAutomationContributor | AZMGAddMember           | AZResetPassword           |
-| AZAvereContributor      | AZMGAddOwner            | AZRunsAs                  |
-| AZCloudAppAdmin         | AZMGAddSecret           | AZUserAccessAdministrator |
-| AZContains              | AZMGGrantAppRoles       | AZVMAdminLogin            |
-| AZContributor           | AZMGGrantRole           | AZVMContributor           |
-| AZExecuteCommand        | AZManagedIdentity       | AZWebsiteContributor      |
-| AZGetCertificates       | AZMemberOf              | SyncedToADUser            |
-| AZGetKeys               |                         |                           |
+| [AZGetSecrets](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-get-secrets)            | [AZNodeResourceGroup](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-node-resource-group)       | [AZAddMembers](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-add-members)            |
+| [AZGlobalAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-global-admin)           | [AZOwner](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-owner)                   | [AZAddOwner](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-add-owner)              |
+| [AZHasRole](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-has-role)               | [AZOwns](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-owns)                    | [AZAddSecret](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-add-secret)             |
+| [AZKeyVaultKVContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-key-vault-contributor) | [AZPrivilegedAuthAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-privileged-auth-admin)     | [AZAppAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-app-admin)              |
+| [AZLogicAppContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-logic-app-contributor)   | [AZPrivilegedRoleAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-privileged-role-admin)     | [AZAutomationContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-automation-contributor) |
+| [AZMGAddMember](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-add-member)           | [AZResetPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-reset-password)           | [AZAvereContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-avere-contributor)      |
+| [AZMGAddOwner](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-add-owner)            | [AZRunsAs](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-runs-as)                   | [AZCloudAppAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-cloud-app-admin)         |
+| [AZMGAddSecret](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-add-secret)           | [AZUserAccessAdministrator](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-user-access-administrator) | [AZContains](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-contains)              |
+| [AZMGGrantAppRoles](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-grant-app-roles)       | [AZVMAdminLogin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-vm-admin-login)            | [AZContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-contributor)           |
+| [AZMGGrantRole](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-grant-role)           | [AZVMContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-vm-contributor)           | [AZExecuteCommand](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-execute-command)        |
+| [AZManagedIdentity](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-managed-identity)       | [AZWebsiteContributor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-website-contributor)      | [AZGetCertificates](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-get-certificates)       |
+| [AZMemberOf](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-member-of)              | [SyncedToADUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-ad-user)            | [AZGetKeys](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-get-keys)               |
 
 ## Non-Traversable Edges
 
@@ -82,22 +83,20 @@ These are the non-traversable AD edge types in BloodHound:
 
 |                          |                    |                                 |
 | ------------------------ | ------------------ | ------------------------------- |
-| Contains                 | GPLink             | OwnsRaw                         |
-| CrossForestTrust         | HostsCAService     | ProtectAdminGroups              |
-| DelegatedEnrollmentAgent | IssuedSignedBy     | PublishedTo                     |
-| Enroll                   | LocalToComputer    | RemoteInteractiveLogonPrivilege |
-| EnrollOnBehalfOf         | ManageCA           | RootCAFor                       |
-| EnterpriseCAFor          | ManageCertificates | TrustedForNTAuth                |
-| ExtendedByPolicy         | MemberOfLocalGroup | WriteOwnerRaw                   |
-| GetChanges               | NTAuthStoreFor     | WritePKIEnrollmentFlag          |
-| GetChangesAll            | OIDGroupLink       | WritePKINameFlag                |
-| GetChangesInFilteredSet  |
+| [DelegatedEnrollmentAgent](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/delegated-enrollment-agent) | [Enroll](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/enroll) | [EnrollOnBehalfOf](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/enroll-on-behalf-of) |
+| [EnterpriseCAFor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/enterprise-ca-for) | [ExtendedByPolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/extended-by-policy) | [GetChanges](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/get-changes) |
+| [GetChangesAll](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/get-changes-all) | [GetChangesInFilteredSet](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/get-changes-in-filtered-set) | [HostsCAService](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/hosts-ca-service) |
+| [IssuedSignedBy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/issued-signed-by) | [LocalToComputer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/local-to-computer) | [MemberOfLocalGroup](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of-local-group) |
+| [NTAuthStoreFor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/nt-auth-store-for) | [OIDGroupLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/oid-group-link) | [OwnsRaw](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns-raw) |
+| [ProtectAdminGroups](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/protect-admin-groups) | [PublishedTo](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/published-to) | [RemoteInteractiveLogonRight](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/remote-interactive-logon-right) |
+| [RootCAFor](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/root-ca-for) | [TrustedForNTAuth](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/trusted-for-nt-auth) | [WriteOwnerRaw](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner-raw) |
+| [WritePKIEnrollmentFlag](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-pki-enrollment-flag) | [WritePKINameFlag](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-pki-name-flag) |                    |
 
 These are the non-traversable Azure edge types in BloodHound:
 
 |                                     |                                            |
 | ----------------------------------- | ------------------------------------------ |
-| AZMGAppRoleAssignment_ReadWrite_All | AZMGGroup_ReadWrite_All                    |
-| AZMGApplication_ReadWrite_All       | AZMGRoleManagement_ReadWrite_Directory     |
-| AZMGDirectory_ReadWrite_All         | AZMGServicePrincipalEndpoint_ReadWrite_All |
-| AZMGGroupMember_ReadWrite_All       |                                            |
+| [AZMGAppRoleAssignment_ReadWrite_All](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-app-role-assignment-readwrite-all) | [AZMGGroup_ReadWrite_All](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-group-readwrite-all)                    |
+| [AZMGApplication_ReadWrite_All](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-application-readwrite-all)       | [AZMGRoleManagement_ReadWrite_Directory](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-role-management-readwrite-directory)     |
+| [AZMGDirectory_ReadWrite_All](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-directory-readwrite-all)         | [AZMGServicePrincipalEndpoint_ReadWrite_All](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-service-principal-endpoint-readwrite-all) |
+| [AZMGGroupMember_ReadWrite_All](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/az-mg-group-member-readwrite-all)       |                                            |
