@@ -55,7 +55,7 @@ With GenericWrite permission over a root CA, you can make a rouge certificate tr
 
 **NTAuthStore**
 
-With GenericWrite permission over a NTAuth store, you can make an enterprise CA certificate trusted for NT (domain) authentication the AD forest by adding the certificate in the root CA object's cACertificate attribute. This action may enable you to perform an ADCS domain escalation. This action may enable you to perform an ADCS domain escalation.
+With GenericWrite permission over an NTAuth store, you can make an enterprise CA certificate trusted for NT (domain) authentication the AD forest by adding the certificate in the root CA object's cACertificate attribute. This action may enable you to perform an ADCS domain escalation.
 
 **IssuancePolicy**
 
@@ -67,10 +67,10 @@ This will depend on which type of object you are targeting and the attack you pe
 
 ## Edge Schema
 
-Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)  
+Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)
 Destination: [AIACA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/aiaca), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [Domain](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/domain), [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca), [GPO](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/gpo), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [IssuancePolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/issuance-policy), [NTAuthStore](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/nt-auth-store), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [RootCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/root-ca), [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user)
- 
-Traversable: **Yes**  
+
+Traversable: **Yes**
 
 ## References
 
