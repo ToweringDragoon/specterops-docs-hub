@@ -1,0 +1,15 @@
+---
+title: "Adcs Victim Session Options"
+description: "BloodHound documentation"
+icon: "droplet"
+---
+
+If the victim is a computer, you can obtain the credentials of the computer account using the Shadow Credentials attack (see [AddKeyCredentialLink edge](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-key-credential-link) documentation).
+
+Alternatively, you can obtain a session as SYSTEM on the host, which allows you to interact with AD as the computer account, by abusing control over the computer AD object (see [GenericAll edge](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/generic-all) documentation).
+
+If the victim is a user, you have the following options for obtaining the credentials:
+
+* Shadow Credentials attack (see [AddKeyCredentialLink edge](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/add-key-credential-link) documentation).
+* Password reset (see [ForceChangePassword edge](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/force-change-password) documentation).
+* Targeted Kerberoasting (see [WriteSPN edge](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-spn) documentation).
