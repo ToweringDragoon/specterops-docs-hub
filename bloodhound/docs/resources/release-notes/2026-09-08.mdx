@@ -34,27 +34,13 @@ import FeatureFlagNote from '/snippets/feature-flag-so-managed.mdx';
 
   <img noZoom src="/assets/enterprise-edition-pill-tag.svg" alt="Applies to BloodHound Enterprise only" style={{ width: "25%" }}/>
 
+  <Note>
+    This feature will be reverted in an upcoming hotfix while we address feedback and make improvements.
+  </Note>
+
   Create reusable generic HTTPS webhooks, connect them to configurable rules, and review delivery attempts.
   
-  The initial release of [Alerts](https://github.com/SpecterOps/bloodhound-docs/blob/main//manage-bloodhound/alerts/overview) supports the **Collector Offline** event type and **Webhook** delivery method to monitor collector availability. You can configure rules to trigger when a collector is offline for a specified duration and BloodHound Enterprise will send an alert to the configured webhook URL.
-
-  <EarlyAccessNote feature="Alerts" />
-
-  This feature introduces new APIs to manage alerts. You can use them to programmatically manage webhooks and rules, inspect event types, events, and delivery attempts, test webhook destinations, rotate webhook secrets, and retry failed deliveries:
-
-  | Method | Endpoint |
-  | --- | --- |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/list-alert-webhooks), [`POST`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/create-alert-webhook) | `/api/v2/alert-webhooks` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/get-alert-webhook), [`PATCH`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/update-alert-webhook), [`DELETE`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/delete-alert-webhook) | `/api/v2/alert-webhooks/{alert_webhook_id}` |
-  | [`POST`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/rotate-alert-webhook-secret) | `/api/v2/alert-webhooks/{alert_webhook_id}/rotate-secret` |
-  | [`POST`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/test-alert-webhook) | `/api/v2/alert-webhooks/{alert_webhook_id}/test` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/list-alert-event-types) | `/api/v2/alert-event-types` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/list-alert-events) | `/api/v2/alert-events` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/get-alert-event) | `/api/v2/alert-events/{alert_event_id}` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/list-alerts), [`POST`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/create-alert) | `/api/v2/alerts` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/get-alert), [`PATCH`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/update-alert), [`DELETE`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/delete-alert) | `/api/v2/alerts/{alert_id}` |
-  | [`GET`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/list-alert-attempts) | `/api/v2/alert-attempts` |
-  | [`POST`](https://github.com/SpecterOps/bloodhound-docs/blob/main//reference/alerts/retry-alert-attempt) | `/api/v2/alert-attempts/retry` |
+  The initial release of Alerts supports the **Collector Offline** event type and **Webhook** delivery method to monitor collector availability. You can configure rules to trigger when a collector is offline for a specified duration and BloodHound Enterprise will send an alert to the configured webhook URL.
 </Update>
 
 <Update label="BloodHound" description="New Feature" tags={["Data Collection"]}>
