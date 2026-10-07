@@ -47,6 +47,10 @@ You can compromise child users and computers of the [OU](https://github.com/Spec
 
 You can compromise users and computers of the domain by abusing write access to the `gPLink` attribute of the domain. See the [WriteGPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-gp-link) edge documentation for details.
 
+**[Site](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/site)**
+
+You can compromise the site's domain controllers and computers mapped to its subnets by abusing write access to the site's `gPLink` attribute. See the [WriteGPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-gp-link) edge documentation for details.
+
 **[CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template)**
 
 With GenericWrite permission over a certificate template, you may be able to perform an ESC4 attack by modifying the template's attributes. BloodHound will in that case create an [ADCSESC4](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/adcs-esc4) edge from the principal to the forest domain node.
@@ -74,7 +78,7 @@ This will depend on which type of object you are targeting and the attack you pe
 ## Edge Schema
 
 Source: [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer)
-Destination: [AIACA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/aiaca), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [Domain](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/domain), [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca), [GPO](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/gpo), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [IssuancePolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/issuance-policy), [NTAuthStore](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/nt-auth-store), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [RootCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/root-ca), [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user)
+Destination: [AIACA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/aiaca), [CertTemplate](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/cert-template), [Computer](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/computer), [Domain](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/domain), [EnterpriseCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/enterprise-ca), [GPO](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/gpo), [Group](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/group), [IssuancePolicy](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/issuance-policy), [NTAuthStore](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/nt-auth-store), [OU](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/ou), [RootCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/root-ca), [Site](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/site), [User](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/nodes/user)
 
 Traversable: ✅
 
