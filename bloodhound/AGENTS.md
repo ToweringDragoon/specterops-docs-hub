@@ -24,5 +24,7 @@ When working under `docs/`, read [`docs/AGENTS.md`](https://github.com/SpecterOp
 | Adding, moving, or reorganizing pages | [`.agents/info-architecture.md`](https://github.com/SpecterOps/bloodhound-docs/blob/main/.agents/info-architecture.md) |
 | Adding or changing Mintlify components or layout | [`.agents/mintlify-guidance.md`](https://github.com/SpecterOps/bloodhound-docs/blob/main/.agents/mintlify-guidance.md) |
 | Validating documentation changes | [`.agents/validation.md`](https://github.com/SpecterOps/bloodhound-docs/blob/main/.agents/validation.md) |
+| Updating OpenAPI spec for REST API reference | [`.agents/skills/update-openapi-spec/SKILL.md`](https://github.com/SpecterOps/bloodhound-docs/blob/main/.agents/skills/update-openapi-spec/SKILL.md) |
+| Generating release notes from Jira exports | [`.agents/skills/generate-release-notes/SKILL.md`](https://github.com/SpecterOps/bloodhound-docs/blob/main/.agents/skills/generate-release-notes/SKILL.md) |
 
 Keep the root `AGENTS.md` focused on repository-wide guidance and this routing map. Put documentation-specific rules in `docs/AGENTS.md` or a more specific nested file.

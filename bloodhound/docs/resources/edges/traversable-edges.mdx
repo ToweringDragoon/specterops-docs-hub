@@ -11,6 +11,10 @@ import ResourceEditionPill from '/snippets/resources/edition-pill.mdx';
 
 Most edges in BloodHound are traversable, representing a relationship between two nodes where the starting node can take control of the ending node to a degree that allows an attacker to abuse outgoing edges.
 
+<Note>
+  Synthetic edges such as [MemberOfZone](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of-zone) support graph traversal without, by themselves, granting control of the destination or representing an abusable privilege.
+</Note>
+
 For example, consider the [ForceChangePassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/force-change-password) edge:
 
 <Frame>
@@ -37,13 +41,14 @@ These are the traversable AD edge types in BloodHound:
 | [ForceChangePassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/force-change-password)     | [GenericAll](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/generic-all)               | [GenericWrite](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/generic-write)                |
 | [GoldenCert](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/golden-cert)              | [GPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/gp-link)                   | [HasSIDHistory](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-sid-history)               |
 | [HasSession](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-session)              | [HasTrustKeys](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/has-trust-keys)             | [ManageCA](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/manage-ca)                  |
-| [ManageCertificates](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/manage-certificates)      | [MemberOf](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of)                | [Owns](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns)                        |
-| [OwnsLimitedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns-limited-rights)       | [ReadGMSAPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/read-gmsa-password)         | [ReadLAPSPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/read-laps-password)            |
-| [SameForestTrust](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/same-forest-trust)         | [SpoofSIDHistory](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/spoof-sid-history)          | [SQLAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sql-admin)                   |
-| [ServerIs](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/server-is)                       | [SyncedToADUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-ad-user)          | [SyncedToEntraUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-entra-user) |
-| [SyncLAPSPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sync-laps-password)       | [WriteAccountRestrictions](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-account-restrictions) | [WriteAltSecurityIdentities](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-alt-security-identities) |
-| [WriteDacl](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-dacl)                      | [WriteGPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-gp-link)                 | [WriteOwner](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner) |
-| [WriteOwnerLimitedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner-limited-rights) | [WritePublicInformation](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-public-information) | [WriteSPN](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-spn) |
+| [ManageCertificates](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/manage-certificates)      | [MemberOf](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of)                | [MemberOfZone](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/member-of-zone)      |
+| [Owns](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns)                                  | [OwnsLimitedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/owns-limited-rights) | [ReadGMSAPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/read-gmsa-password) |
+| [ReadLAPSPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/read-laps-password)        | [SameForestTrust](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/same-forest-trust)         | [SpoofSIDHistory](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/spoof-sid-history)          |
+| [SQLAdmin](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sql-admin)                         | [ServerIs](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/server-is)                       | [SyncedToADUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-ad-user) |
+| [SyncedToEntraUser](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/synced-to-entra-user)      | [SyncLAPSPassword](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/sync-laps-password)       | [WriteAccountRestrictions](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-account-restrictions) |
+| [WriteAltSecurityIdentities](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-alt-security-identities) | [WriteDacl](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-dacl)                      | [WriteGPLink](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-gp-link) |
+| [WriteOwner](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner)                     | [WriteOwnerLimitedRights](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-owner-limited-rights) | [WritePublicInformation](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-public-information) |
+| [WriteSPN](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/write-spn)                         |                                                          |                                                      |
 
 These are the traversable Azure edge types in BloodHound:
 
@@ -65,6 +70,10 @@ These are the traversable Azure edge types in BloodHound:
 ## Non-Traversable Edges
 
 If you cannot abuse a given relationship between two nodes to take control of the end node, then the relationship is non-traversable. However, some non-traversable relationships can form a traversable relationship when combined. An example is the [DCSync](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/dc-sync) attack narrative. [GetChanges](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/get-changes) and [GetChangesAll](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/get-changes-all) permissions on the domain object combined enable you to perform the DCSync attack. GetChanges and GetChangesAll are non-traversable edges, and BloodHound uses them to produce the traversable DCSync edge in what we call the post-processing logic.
+
+<Tip>
+  On the [Explore](https://github.com/SpecterOps/bloodhound-docs/blob/main//analyze-data/explore/search#graph-view) page, dashed lines represent non-traversable edges, while solid lines represent traversable edges.
+</Tip>
 
 Pathfinding includes only traversable edges. As a result, you might get a [DCSync](https://github.com/SpecterOps/bloodhound-docs/blob/main//resources/edges/dc-sync) edge in a path like this:
 
